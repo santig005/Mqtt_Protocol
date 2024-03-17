@@ -1,0 +1,3 @@
+C:/Users/Ryzen 5/OneDrive - Universidad EAFIT/Uni/20241/Telematica/Proyectos/MqttC/cmake-build-debug/CMakeFiles/MqttC.dir
+C:/Users/Ryzen 5/OneDrive - Universidad EAFIT/Uni/20241/Telematica/Proyectos/MqttC/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Ryzen 5/OneDrive - Universidad EAFIT/Uni/20241/Telematica/Proyectos/MqttC/cmake-build-debug/CMakeFiles/rebuild_cache.dir

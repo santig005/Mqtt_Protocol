@@ -1,0 +1,4 @@
+# ninja log v5
+9	888	7323508283671735	build.ninja	c0ca762e99d4f9ac
+1	1283	7323508298049792	CMakeFiles/MqttC.dir/src/main.c.obj	aeaaaf5932381e83
+1285	3019	7323508315246202	MqttC.exe	24d25c8e6722ca64
