@@ -1,6 +1,6 @@
 #include <stdio.h>
 
 int main() {
-    printf("This is an mqtt protocol!\n");
+    printf("Hello, World!\n");
     return 0;
 }
