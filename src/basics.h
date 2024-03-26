@@ -14,13 +14,11 @@ union basic_header {
 
 struct fixed_header{
   union basic_header basic_header;
-  uint64_t remaining_length;
+  uint32_t remaining_length;
 };
 struct connect{
   struct fixed_header header;
-
   struct{
-
     struct{
       uint16_t length;
       char name[16];
@@ -53,7 +51,6 @@ struct connect{
   uint8_t *will_topic;
   uint8_t *will_message;
   }payload;
-  
 };
 
 struct packet{
