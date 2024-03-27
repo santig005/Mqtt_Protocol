@@ -2,6 +2,12 @@
 #define BASICS_H
 #include <stdio.h>
 #include <stdint.h>
+enum packet_type {
+    CONNECT     = 1,
+    CONNACK     = 2,
+    PUBLISH     = 3,
+    DISCONNECT  = 14
+};
 union basic_header {
     uint8_t byte;
     struct {
@@ -21,7 +27,7 @@ struct connect{
   struct{
     struct{
       uint16_t length;
-      char name[16];
+      char * name;
     }protocol_name;
 
     uint8_t protocol_level;
@@ -29,7 +35,7 @@ struct connect{
     union{
         uint8_t byte;
         struct {
-            int reserverd : 1;
+            unsigned reserverd : 1;
             unsigned clean_session : 1;
             unsigned will_flag : 1;
             unsigned will_qos : 2;
@@ -38,7 +44,7 @@ struct connect{
             unsigned username : 1;
         } bits;
 
-    }connnect_flags;
+    }connect_flags;
 
     uint16_t keep_alive;
 
@@ -52,9 +58,28 @@ struct connect{
   uint8_t *will_message;
   }payload;
 };
+struct connack{
+  struct fixed_header header;
+  struct{
+    union{
+      uint8_t byte;
+      struct{
+        unsigned session_present : 1;
+        unsigned reserved : 7;
+      }bits;
+    }ack_flags;
+    uint8_t return_code;
+  }variable_header;
+};
+
 
 struct packet{
   struct connect CONNECT;
+  struct connack CONNACK;
 };
+
+
+int process_connect(uint8_t * buff);
+void process_packet(int connfd,uint8_t * buff);
 
 #endif

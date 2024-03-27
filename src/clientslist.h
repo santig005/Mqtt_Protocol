@@ -9,7 +9,7 @@ typedef struct client{
   uint8_t *password;
   uint8_t *will_topic;
   uint8_t *will_message;
-  client *next;
+  struct client *next;
 }Client;
 
 typedef struct clients {

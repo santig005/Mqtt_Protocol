@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,10 @@
 #include "broker.h"
 #define MAX 100
 #define PORT 8080
+#include "basics.h"
+
+
+
 void network_connection(int connfd){
   uint8_t buff[MAX];
   int n;
@@ -17,10 +22,9 @@ void network_connection(int connfd){
     
     read(connfd, buff, sizeof(buff));
     // Here we proccess the buffer
-
+    process_packet(connfd,&buff[0]);
     // Here we clean the buffer again
     bzero(buff,MAX);
-    // Here we send our message if necesary
     
   }
 }
