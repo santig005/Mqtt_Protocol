@@ -41,6 +41,12 @@ int process_connect(uint8_t * buff){
     }
     return 0x00;
 }
+
+int process_publish(uint8_t * buff){
+    struct publish * publish_messg=(struct publish *)malloc(sizeof(struct publish));
+    publish_messg->header.remaining_length=remaining_length(&buff);
+}
+
 void process_packet(int connfd,uint8_t * buff){
     uint8_t first_byte=next_byte(&buff);
     uint8_t packet_type=(first_byte && 0xF0)>>4;
@@ -54,7 +60,6 @@ void process_packet(int connfd,uint8_t * buff){
                 uint8_t connack[4]={0x20,0x02,0x00,response};
                 write(connfd,connack,sizeof(connack));
             }
-
     }
 
 }
