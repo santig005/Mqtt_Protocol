@@ -8,25 +8,26 @@ Clients * Clients_newList() {
     return newList;
 }
 
-void Clients_add(Clients * list, uint8_t *client_id, uint8_t *username, uint8_t *password, uint8_t *will_topic, uint8_t *will_message) {
-    Client *new_client = (Client*)malloc(sizeof(Client));
-    new_client->client_id = client_id;
-    new_client->username = username;
-    new_client->password = password;
-    new_client->will_topic = will_topic;
-    new_client->will_message = will_message;
-    new_client->next = NULL;
-    
-    if (list->head == NULL) {
-        list->head = new_client;
-    } else {
-        Client *current = list->head;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = new_client;
+void Clients_add(Clients *list, struct connect *cn) {
+  Client *new_client = (Client *)malloc(sizeof(Client));
+  new_client->client_id = cn->payload.client_id;
+  new_client->username = cn->payload.username;
+  new_client->password = cn->payload.password;
+  new_client->will_topic = cn->payload.will_topic;
+  new_client->will_message = cn->payload.will_message;
+  new_client->next = NULL;
+
+  if (list->head == NULL) {
+    list->head = new_client;
+  } else {
+    Client *current = list->head;
+    while (current->next != NULL) {
+      current = current->next;
     }
+    current->next = new_client;
+  }
 }
+
 
 Client *Clients_find(Clients *list, uint8_t *client_id) {
   Client *current = list->head;

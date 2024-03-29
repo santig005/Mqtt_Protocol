@@ -1,5 +1,4 @@
-#include <arpa/inet.h>
-
+//#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,8 +10,10 @@
 #define MAX 100
 #define PORT 8080
 #include "basics.h"
-
-
+#include "clientslist.h"
+#include "convertion.h"
+#include "brokerprocessor.h"
+Clients * clist;
 
 void network_connection(int connfd){
   uint8_t buff[MAX];

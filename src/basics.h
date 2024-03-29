@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
 enum packet_type {
   CONNECT = 1,
   CONNACK = 2,
@@ -35,7 +36,7 @@ struct connect {
   struct {
     struct {
       uint16_t length;
-      char *name;
+      uint8_t *name;
     } protocol_name;
 
     uint8_t protocol_level;
@@ -82,7 +83,7 @@ struct connack {
 
 struct publish {
   struct fixed_header header;
-  unsigned short paket_id;
+  unsigned short packet_id;
   unsigned short topic_length;
   unsigned char *topic;
   unsigned short payload_length;
@@ -101,7 +102,6 @@ struct packet {
   struct disconnect DISCONNECT;
 };
 
-int process_connect(uint8_t *buff);
-void process_packet(int connfd, uint8_t *buff);
+
 
 #endif

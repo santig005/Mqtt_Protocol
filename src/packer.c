@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+//#include <arpa/inet.h>
 
 uint8_t next_byte(uint8_t **buffer) {
   uint8_t byte = **buffer;
@@ -16,7 +19,8 @@ uint16_t next_16b(const uint8_t **buf) {
     uint16_t val;
     memcpy(&val, *buf, sizeof(uint16_t));
     (*buf) += sizeof(uint16_t);
-    return ntohs(val);
+    //return ntohs(val);
+    return val;
 }
 
 uint32_t remaining_length(const uint8_t **buf) {
@@ -35,8 +39,8 @@ uint32_t remaining_length(const uint8_t **buf) {
   return value;
 }
 
-uint8_t next_nbytes(uint8_t **buf, size_t n) {
-  uint8_t* dest=try_alloc(n+1);
+uint8_t* next_nbytes(uint8_t **buf, size_t n) {
+  uint8_t* dest=malloc(n+1);
   memcpy(dest, *buf, n);
   dest[n]='\0';
   (*buf) += n;

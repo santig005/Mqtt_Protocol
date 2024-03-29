@@ -2,7 +2,7 @@
 #define CLIENTLIST_H
 #include <stdint.h>
 #include <stdio.h>
-
+#include "basics.h"
 typedef struct client{
   uint8_t *client_id;
   uint8_t *username;
@@ -18,7 +18,7 @@ typedef struct clients {
 
 Clients * Clients_newList();
 
-void Clients_add(Clients * list,uint8_t *client_id, uint8_t *username, uint8_t *password, uint8_t *will_topic, uint8_t *will_message);
+void Clients_add(Clients * list,struct connect * cn);
 
 Client * Clients_find(Clients *list, uint8_t *client_id);
 
