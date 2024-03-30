@@ -6,7 +6,7 @@
 #include "packer.h"
 #include "clientslist.h"
 #include "broker.h"
-
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -49,7 +49,7 @@ uint8_t process_connect(uint8_t * buff){
 int process_disconnect(uint8_t * buff, uint8_t * first_byte){
   struct disconnect * disconnect_messg=(struct disconnect *)malloc(sizeof(struct disconnect));
 
-  if((first_byte & 0x0F) !=0x00 || remaining_length(&buff) != 0x00){
+  if(remaining_length(&buff) != 0x00){
     return 0x01;
   }
 
@@ -73,7 +73,7 @@ uint8_t process_packet(int connfd,uint8_t * buff){
                 //uint8_t connack[4]={0x20,0x02,0x00,0x00};
                 //write(connfd,connack,sizeof(connack));
                 write(connfd,"succesful connection",20);
-                return 0x01
+                return 0x01;
             }else{
                 //uint8_t connack[4]={0x20,0x02,0x00,response};
                 //write(connfd,connack,sizeof(connack));
