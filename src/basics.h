@@ -92,7 +92,6 @@ struct publish {
 
 struct disconnect {
   struct fixed_header header;
-  uint8_t remaining_length;
 };
 
 struct packet {
