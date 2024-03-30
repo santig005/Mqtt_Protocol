@@ -27,8 +27,6 @@ uint8_t process_connect(uint8_t * buff){
         read_string16(&buff,&connect_messg->payload.will_message);
     }
     
-
-    
     if(connect_messg->variable_header.connect_flags.bits.username){
         read_string16(&buff,&connect_messg->payload.username);
     }
@@ -50,7 +48,7 @@ int process_publish(uint8_t * buff){
     publish_messg->header.remaining_length=remaining_length(&buff);
 }
 
-void process_packet(int connfd,uint8_t * buff){
+uint8_t process_packet(int connfd,uint8_t * buff){
     uint8_t first_byte=next_byte(&buff);
     uint8_t packet_type=(first_byte & 0xF0)>>4;
     switch(packet_type){
@@ -60,10 +58,12 @@ void process_packet(int connfd,uint8_t * buff){
                 //uint8_t connack[4]={0x20,0x02,0x00,0x00};
                 //write(connfd,connack,sizeof(connack));
                 write(connfd,"succesful connection",20);
+                return 0x01
             }else{
                 //uint8_t connack[4]={0x20,0x02,0x00,response};
                 //write(connfd,connack,sizeof(connack));
                 write(connfd,"unsuccesful connection",22);
+                return 0x00;
             }
     }
 

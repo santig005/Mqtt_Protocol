@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <arpa/inet.h>
+#include <arpa/inet.h>
 
 uint8_t next_byte(uint8_t **buffer) {
   uint8_t byte = **buffer;
@@ -15,15 +15,15 @@ void pack_byte(uint8_t **buf, uint8_t val) {
   (*buf) += sizeof(uint8_t);
 }
 
-uint16_t next_16b(const uint8_t **buf) {
+uint16_t next_16b(uint8_t **buf) {
     uint16_t val;
     memcpy(&val, *buf, sizeof(uint16_t));
     (*buf) += sizeof(uint16_t);
-    //return ntohs(val);
-    return val;
+    return ntohs(val);
+    //return val;
 }
 
-uint32_t remaining_length(const uint8_t **buf) {
+uint32_t remaining_length( uint8_t **buf) {
 
   char c;
   int multiplier = 1;
