@@ -43,14 +43,27 @@ uint8_t process_connect(uint8_t * buff){
     return 0x00;
 }
 
+int process_disconnect(uint8_t * buff, uint8_t * first_byte){
+  struct disconnect * disconnect_messg=(struct disconnect *)malloc(sizeof(struct disconnect));
+
+  if((first_byte & 0x0F) !=0x00 || remaining_length(&buff) != 0x00){
+    return 0x01;
+  }
+
+  return 0x00;
+
+}
+
 int process_publish(uint8_t * buff){
     struct publish * publish_messg=(struct publish *)malloc(sizeof(struct publish));
     publish_messg->header.remaining_length=remaining_length(&buff);
+
 }
 
 uint8_t process_packet(int connfd,uint8_t * buff){
     uint8_t first_byte=next_byte(&buff);
     uint8_t packet_type=(first_byte & 0xF0)>>4;
+  
     switch(packet_type){
         case CONNECT:
             uint8_t response=process_connect(buff);
@@ -65,6 +78,16 @@ uint8_t process_packet(int connfd,uint8_t * buff){
                 write(connfd,"unsuccesful connection",22);
                 return 0x00;
             }
+      case DISCONNECT:
+          uint8_t response=process_disconnect(buff, &first_byte);
+          if(response==0x00){
+              //uint8_t connack[4]={0x20,0x02,0x00,0x00};
+              //write(connfd,connack,sizeof(connack));
+              write(connfd,"succesful disconnection",23);
+          }else{
+              write(connfd,"unsuccesful connection, but you will be disconnect",48);
+          }
+          
     }
 
 }
