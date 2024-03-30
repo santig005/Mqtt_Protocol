@@ -7,6 +7,9 @@
 #include "clientslist.h"
 #include "broker.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 uint8_t process_connect(uint8_t * buff){
     struct connect * connect_messg=(struct connect *)malloc(sizeof(struct connect));
@@ -57,16 +60,15 @@ int process_disconnect(uint8_t * buff, uint8_t * first_byte){
 int process_publish(uint8_t * buff){
     struct publish * publish_messg=(struct publish *)malloc(sizeof(struct publish));
     publish_messg->header.remaining_length=remaining_length(&buff);
-
 }
 
 uint8_t process_packet(int connfd,uint8_t * buff){
     uint8_t first_byte=next_byte(&buff);
     uint8_t packet_type=(first_byte & 0xF0)>>4;
-  
+    uint8_t response;
     switch(packet_type){
         case CONNECT:
-            uint8_t response=process_connect(buff);
+            response=process_connect(buff);
             if(response==0x00){
                 //uint8_t connack[4]={0x20,0x02,0x00,0x00};
                 //write(connfd,connack,sizeof(connack));
@@ -78,8 +80,8 @@ uint8_t process_packet(int connfd,uint8_t * buff){
                 write(connfd,"unsuccesful connection",22);
                 return 0x00;
             }
-      case DISCONNECT:
-          uint8_t response=process_disconnect(buff, &first_byte);
+case DISCONNECT:
+            response=process_disconnect(buff, &first_byte);
           if(response==0x00){
               //uint8_t connack[4]={0x20,0x02,0x00,0x00};
               //write(connfd,connack,sizeof(connack));

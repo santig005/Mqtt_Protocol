@@ -16,21 +16,21 @@
 Clients * clist;
 
 void network_connection(int connfd){
-  uint8_t buff[MAX];
+  char buff[MAX];
   int n;
   for(;;){
     bzero(buff,MAX);
-    
     read(connfd, buff, sizeof(buff));
+    uint8_t* ubuff=hextobytes(buff);
     // Here we proccess the buffer
-    process_packet(connfd,&buff[0]);
+    process_packet(connfd,ubuff);
     // Here we clean the buffer again
     bzero(buff,MAX);
     
   }
 }
 int main() {
-  clientslist=Clients_newList();
+  clist=Clients_newList();
   // Server socket id
   int sockfd, ret;
 
