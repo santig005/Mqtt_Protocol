@@ -46,10 +46,12 @@ uint8_t process_connect(uint8_t * buff){
     return 0x00;
 }
 
-int process_disconnect(uint8_t * buff, uint8_t * first_byte){
+uint8_t process_disconnect(uint8_t * buff, uint8_t first_byte){
   struct disconnect * disconnect_messg=(struct disconnect *)malloc(sizeof(struct disconnect));
 
-  if(remaining_length(&buff) != 0x00){
+  uint8_t reserved_bytes = (first_byte & 0x0F)>>4;
+
+  if(remaining_length(&buff) != 0x00  && reserved_bytes!=0x00){
     return 0x01;
   }
 
@@ -57,7 +59,41 @@ int process_disconnect(uint8_t * buff, uint8_t * first_byte){
 
 }
 
-int process_publish(uint8_t * buff){
+uint8_t process_subscribe(uint8_t * buff, uint8_t first_byte){
+  
+  struct subscribe * subscribe_messg=(struct subscribe *)malloc(sizeof(struct subscribe));
+  uint8_t reserved_bytes = (first_byte & 0x0F);
+
+  if(reserved_bytes!=0x02){
+    return 0x01;
+  }
+
+  subscribe_messg->header.remaining_length=remaining_length(&buff);
+  subscribe_messg->packet_id=next_16b(&buff);
+  subscribe_messg->header.remaining_length -= sizeof(uint16_t);
+
+  int i = 0;
+  while (subscribe_messg->header.remaining_length > 0) {
+
+      /* Read length bytes of the first topic filter */
+      uint16_t topic_len = next_16b(&buff);
+      subscribe_messg->header.remaining_length -= sizeof(uint16_t);
+
+      subscribe_messg->tuples[i].topic_len = topic_len;
+      unpack_bytes(&buff, topic_len, subscribe_messg->tuples[i].topic);
+      subscribe_messg->header.remaining_length -= topic_len;
+      subscribe_messg->tuples[i].qos = next_byte(&buff);
+      subscribe_messg->header.remaining_length -= sizeof(uint8_t);
+      i++;
+  }
+
+   subscribe_messg->tuples_len = i;
+
+    return 0x00;
+  }
+
+
+uint8_t process_publish(uint8_t * buff){
     struct publish * publish_messg=(struct publish *)malloc(sizeof(struct publish));
     publish_messg->header.remaining_length=remaining_length(&buff);
 }
@@ -80,8 +116,8 @@ uint8_t process_packet(int connfd,uint8_t * buff){
                 write(connfd,"unsuccesful connection",22);
                 return 0x00;
             }
-case DISCONNECT:
-            response=process_disconnect(buff, &first_byte);
+        case DISCONNECT:
+            response=process_disconnect(buff, first_byte);
           if(response==0x00){
               //uint8_t connack[4]={0x20,0x02,0x00,0x00};
               //write(connfd,connack,sizeof(connack));
@@ -89,6 +125,11 @@ case DISCONNECT:
           }else{
               write(connfd,"unsuccesful connection, but you will be disconnect",48);
           }
+
+        case SUBSCRIBE:
+
+          response=process_subscribe(buff, first_byte);
+        
           
     }
 
