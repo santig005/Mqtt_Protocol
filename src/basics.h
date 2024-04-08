@@ -8,6 +8,7 @@ enum packet_type {
   CONNECT = 1,
   CONNACK = 2,
   PUBLISH = 3,
+  SUBSCRIBE = 8,
   DISCONNECT = 14
 };
 
@@ -79,6 +80,21 @@ struct connack {
     } ack_flags;
     uint8_t return_code;
   } variable_header;
+};
+
+struct subscribe {
+
+    struct fixed_header header;
+
+    unsigned short packet_id;
+
+    unsigned short tuples_len;
+
+    struct {
+        unsigned short topic_len;
+        unsigned char *topic;
+        unsigned qos;
+    } *tuples;
 };
 
 struct publish {

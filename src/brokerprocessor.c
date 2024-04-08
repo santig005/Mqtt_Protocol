@@ -66,6 +66,40 @@ uint8_t process_disconnect(uint8_t * buff,uint8_t * client_id){
   return 0x00;
 }
 
+uint8_t process_subscribe(uint8_t * buff, uint8_t first_byte){
+  
+  struct subscribe * subscribe_messg=(struct subscribe *)malloc(sizeof(struct subscribe));
+  uint8_t reserved_bytes = (first_byte & 0x0F);
+
+  if(reserved_bytes!=0x02){
+    return 0x01;
+  }
+
+  subscribe_messg->header.remaining_length=remaining_length(&buff);
+  subscribe_messg->packet_id=next_16b(&buff);
+  subscribe_messg->header.remaining_length -= sizeof(uint16_t);
+
+  int i = 0;
+  while (subscribe_messg->header.remaining_length > 0) {
+
+      /* Read length bytes of the first topic filter */
+      uint16_t topic_len = next_16b(&buff);
+      subscribe_messg->header.remaining_length -= sizeof(uint16_t);
+
+      subscribe_messg->tuples[i].topic_len = topic_len;
+      unpack_bytes(&buff, topic_len, subscribe_messg->tuples[i].topic);
+      subscribe_messg->header.remaining_length -= topic_len;
+      subscribe_messg->tuples[i].qos = next_byte(&buff);
+      subscribe_messg->header.remaining_length -= sizeof(uint8_t);
+      i++;
+  }
+
+   subscribe_messg->tuples_len = i;
+
+    return 0x00;
+  }
+
+
 uint8_t process_publish(uint8_t * buff){
     struct publish * publish_messg=(struct publish *)malloc(sizeof(struct publish));
     publish_messg->header.remaining_length=remaining_length(&buff);
@@ -104,6 +138,11 @@ uint8_t process_packet(int connfd,uint8_t * buff,uint8_t * client_id){
               write(connfd,"unsuccesful disconnection",48);
                 return 0x01;
           }
+
+        case SUBSCRIBE:
+
+          response=process_subscribe(buff, first_byte);
+        
           
     }
 
