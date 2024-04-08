@@ -1,5 +1,5 @@
 #include "subscription.h"
-
+#include <stdlib.h>
 void add_subscription(struct subscription * head, struct client_session * session, uint8_t qos, uint8_t * topic_name){
     struct subscription *s = (struct subscription *)malloc(sizeof(struct subscription));
     s->qos = qos;

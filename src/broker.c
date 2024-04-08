@@ -14,14 +14,14 @@
 #include "convertion.h"
 #include "brokerprocessor.h"
 Clients * clist;
-
+ssize_t bytes_rw;
 void network_connection(int connfd){
   uint8_t buff[MAX];
   uint8_t *client_id;
   int n;
   for(;;){
     bzero(buff,MAX);
-    read(connfd, buff, sizeof(buff));
+    bytes_rw=read(connfd, buff, sizeof(buff));
     // Here we proccess the buffer
     uint8_t keep_connection=process_packet(connfd,&buff[0],client_id);
     if(keep_connection==0)break;

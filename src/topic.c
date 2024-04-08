@@ -23,7 +23,7 @@ struct topic *add_topic(struct topic **head, uint8_t *name) {
     *head = t;
   }
   return t;
-}*//
+}*/
 struct topic *add_subtopic(struct topic **head, uint8_t *name) {
   struct topic *t = create_topic(name);
   struct topic *current = (*head)->subtopics;

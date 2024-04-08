@@ -3,6 +3,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define B_CONNECT 0x10
+#define B_CONNACK 0x20
+#define B_PUBLISH 0x30
+#define B_DISCONNECT 0xe0
+
 
 enum packet_type {
   CONNECT = 1,
