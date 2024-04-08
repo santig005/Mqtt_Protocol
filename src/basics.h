@@ -3,10 +3,21 @@
 #include <stdint.h>
 #include <stdio.h>
 
+
 #define B_CONNECT 0x10
 #define B_CONNACK 0x20
 #define B_PUBLISH 0x30
 #define B_DISCONNECT 0xe0
+
+enum connack_response{
+  CONNACK_ACCEPTED = 0x00,
+  CONNACK_UNNACCEPTABLE_PROTOCOL_VERSION = 0x01,
+  CONNACK_IDENTIFIER_REJECTED = 0x02,
+  CONNACK_SERVER_UNAVAILABLE = 0x03,
+  CONNACK_BAD_USERNAME_OR_PASSWORD = 0x04,
+  CONNACK_NOT_AUTHORIZED = 0x05
+};
+
 
 
 enum packet_type {
