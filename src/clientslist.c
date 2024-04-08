@@ -13,8 +13,12 @@ void Clients_add(Clients *list, struct connect *cn) {
   new_client->client_id = cn->payload.client_id;
   new_client->username = cn->payload.username;
   new_client->password = cn->payload.password;
-  new_client->will_topic = cn->payload.will_topic;
-  new_client->will_message = cn->payload.will_message;
+  struct client_session *session = (struct client_session *)malloc(sizeof(struct client_session));
+  session->client_id = cn->payload.client_id;
+  session->will_topic = cn->payload.will_topic;
+  session->will_message = cn->payload.will_message;
+  session->connected = true;
+  new_client->session = session;
   new_client->next = NULL;
 
   if (list->head == NULL) {
@@ -49,8 +53,8 @@ void Clients_print(Clients *list) {
     printf("Client ID: %s\n", current->client_id);
     printf("Username: %s\n", current->username);
     printf("Password: %s\n", current->password);
-    printf("Will Topic: %s\n", current->will_topic);
-    printf("Will Message: %s\n", current->will_message);
+    printf("Will Topic: %s\n", current->session->will_topic);
+    printf("Will Message: %s\n", current->session->will_message);
     current = current->next;
   }
   printf("\n");

@@ -2,13 +2,22 @@
 #define CLIENTLIST_H
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "basics.h"
+
+struct client_session{
+  uint8_t *client_id;
+  uint8_t *will_topic;
+  uint8_t *will_message;
+  int connfd;
+  bool connected;
+};
+
 typedef struct client{
   uint8_t *client_id;
   uint8_t *username;
   uint8_t *password;
-  uint8_t *will_topic;
-  uint8_t *will_message;
+  struct client_session* session;
   struct client *next;
 }Client;
 
