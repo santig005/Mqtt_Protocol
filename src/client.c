@@ -8,8 +8,6 @@
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
 #include "backlog.h"
-#include "clientslist.h"
-#include "broker.h"
 #define MAX 80
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
@@ -22,15 +20,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-void func(int sockfd, struct sockaddr_in client_ip)
+void func(int sockfd)
 {
   char buff_client[MAX];
   char buff_broker[MAX];
-  uint8_t default_connect[21] =
-  {0x10, 0x13, 0x00, 0x04,
-  0x4d, 0x51, 0x54, 0x54,
-  0x04, 0x0a, 0x00, 0x0a,
-  0x00, 0x01};
 
   int want_connect;
   
@@ -157,7 +150,7 @@ int main()
     printf("connected to the server..\n");
 
   // function for chat
-  func(sockfd, cli);
+  func(sockfd);
 
   // close the socket
   close(sockfd);
