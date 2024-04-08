@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint8_t process_connect(uint8_t *buff);
-uint8_t process_disconnect(uint8_t *buff, uint8_t *first_byte);
+uint8_t process_connect(struct connect * sc,uint8_t *buff);
+uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id);
 uint8_t process_publish(uint8_t *buff);
-uint8_t process_packet(int connfd, uint8_t *buff);
+uint8_t process_packet(int connfd, uint8_t *buff, uint8_t *client_id);
 
 #endif // BROKERPROCESSOR_H

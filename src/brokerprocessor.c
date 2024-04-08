@@ -6,13 +6,13 @@
 #include "packer.h"
 #include "clientslist.h"
 #include "broker.h"
+#include "brokerprocessor.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-uint8_t process_connect(uint8_t * buff){
-    struct connect * connect_messg=(struct connect *)malloc(sizeof(struct connect));
+uint8_t process_connect(struct connect * connect_messg, uint8_t * buff){
     connect_messg->header.remaining_length=remaining_length(&buff);
     connect_messg->variable_header.protocol_name.length=next_16b(&buff);
     connect_messg->variable_header.protocol_name.name=next_nbytes(&buff,connect_messg->variable_header.protocol_name.length);
@@ -21,6 +21,10 @@ uint8_t process_connect(uint8_t * buff){
         return 0x01;
     }
     connect_messg->variable_header.protocol_level=next_byte(&buff);
+    // Verificamos que sea el protocolo 4
+    if(connect_messg->variable_header.protocol_level!=0x04){
+        return 0x01;
+    }
     connect_messg->variable_header.connect_flags.byte=next_byte(&buff);
     connect_messg->variable_header.keep_alive=next_16b(&buff);
     // payload
@@ -45,34 +49,43 @@ uint8_t process_connect(uint8_t * buff){
     Clients_print(clist);
     return 0x00;
 }
-
-int process_disconnect(uint8_t * buff, uint8_t * first_byte){
-  struct disconnect * disconnect_messg=(struct disconnect *)malloc(sizeof(struct disconnect));
-
+void send_connack(int connfd,uint8_t session_present){
+    uint8_t connack[4]={0x20,0x02,0x00,session_present};
+    write(connfd,connack,sizeof(connack));
+}
+uint8_t process_disconnect(uint8_t * buff,uint8_t * client_id){
+    Client *c=Clients_find(clist,client_id);
+    if(c==NULL){
+        return 0x01;
+    }else{
+        c->session->connected=false;
+    }
   if(remaining_length(&buff) != 0x00){
     return 0x01;
   }
-
   return 0x00;
-
 }
 
-int process_publish(uint8_t * buff){
+uint8_t process_publish(uint8_t * buff){
     struct publish * publish_messg=(struct publish *)malloc(sizeof(struct publish));
     publish_messg->header.remaining_length=remaining_length(&buff);
 }
 
-uint8_t process_packet(int connfd,uint8_t * buff){
+uint8_t process_packet(int connfd,uint8_t * buff,uint8_t * client_id){
     uint8_t first_byte=next_byte(&buff);
     uint8_t packet_type=(first_byte & 0xF0)>>4;
     uint8_t response;
     switch(packet_type){
         case CONNECT:
-            response=process_connect(buff);
+            struct connect * connect_messg=(struct connect *)malloc(sizeof(struct connect));
+            response=process_connect(connect_messg,buff);
             if(response==0x00){
                 //uint8_t connack[4]={0x20,0x02,0x00,0x00};
                 //write(connfd,connack,sizeof(connack));
                 write(connfd,"succesful connection",20);
+                *client_id=connect_messg->payload.client_id;
+                Client *c=Clients_find(clist,client_id);
+                c->session->connfd=connfd;
                 return 0x01;
             }else{
                 //uint8_t connack[4]={0x20,0x02,0x00,response};
@@ -80,14 +93,16 @@ uint8_t process_packet(int connfd,uint8_t * buff){
                 write(connfd,"unsuccesful connection",22);
                 return 0x00;
             }
-case DISCONNECT:
-            response=process_disconnect(buff, &first_byte);
+        case DISCONNECT:
+            response=process_disconnect(buff,client_id);
           if(response==0x00){
               //uint8_t connack[4]={0x20,0x02,0x00,0x00};
               //write(connfd,connack,sizeof(connack));
               write(connfd,"succesful disconnection",23);
+                return 0x00;
           }else{
-              write(connfd,"unsuccesful connection, but you will be disconnect",48);
+              write(connfd,"unsuccesful disconnection",48);
+                return 0x01;
           }
           
     }

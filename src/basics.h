@@ -90,17 +90,11 @@ struct publish {
   unsigned char *payload;
 };
 
-struct disconnect {
-  struct fixed_header header;
-};
-
 struct packet {
   struct connect CONNECT;
   struct connack CONNACK;
   struct publish PUBLISH;
-  struct disconnect DISCONNECT;
 };
-
 
 
 #endif
