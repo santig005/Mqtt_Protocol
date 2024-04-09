@@ -13,7 +13,7 @@
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
 #define PORT 8080
-#define broker_ip "44.212.64.234"
+#define broker_ip "54.88.35.76"
 #define SA struct sockaddr
 
 #include "clientprocessor.h"
@@ -155,6 +155,10 @@ int main()
     printf("Socket successfully created..\n");
   bzero(&servaddr, sizeof(servaddr));
 
+  // assign IP, PORT
+  servaddr.sin_family = AF_INET;
+  servaddr.sin_addr.s_addr = inet_addr(broker_ip);
+  servaddr.sin_port = htons(PORT);
   // assign IP, PORT
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = inet_addr(broker_ip);
