@@ -133,24 +133,18 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t *client_id) {
       client_id = connect_messg->payload.client_id;
       Client *c = Clients_find(clist, client_id);
       c->session->connfd = connfd;
-      send
+      send_connack(connfd, 0x01, CONNACK_ACCEPTED);
       return 0x01;
     } else {
       // uint8_t connack[4]={0x20,0x02,0x00,response};
       // write(connfd,connack,sizeof(connack));
-      bytes_rw=write(connfd, "unsuccesful connection", 22);
+      send_connack(connfd, 0x00, response);
+      //bytes_rw=write(connfd, "unsuccesful connection", 22);
       return 0x00;
     }
   case DISCONNECT:
     response = process_disconnect(buff, client_id);
-    if (response == 0x00) {
-      // uint8_t connack[4]={0x20,0x02,0x00,0x00};
-      // write(connfd,connack,sizeof(connack));
-      bytes_rw=write(connfd, "succesful disconnection", 23);
-      return 0x00;
-    } else {
-      bytes_rw=write(connfd, "unsuccesful disconnection", 26);
-      return 0x01;
-    }
+    return response;
   }
+  return 0x00;
 }
