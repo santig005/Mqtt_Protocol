@@ -29,6 +29,7 @@ void network_connection(int sockfd) {
   uint8_t connected = 0;
   int n;
   int election;
+  uint8_t connected;
   int scanf_r;
   printf("Hola, para acceder a los servicios del servidor, debes realizar un "
          "CONNECT:\n 1.Continuar\n 2.Salir\n");
@@ -90,6 +91,10 @@ void network_connection(int sockfd) {
       customed_connect->variable_header.connect_flags.bits.will_retain = 0;
 
       send_connect(sockfd, customed_connect);
+      //hacemos lectura y luego procesamos connack
+      bytes_rw=read(sockfd.buff_broker, sizeof(buff_broker));
+      connected=process_packet(sockfd, &buff_broker[0]);
+      uint8_t connack_response = process_connack(sockfd);
     } else {
       uint8_t default_connect[21] = {0x10, 0x13, 0x00, 0x04, 0x4d, 0x51, 0x54,
                                      0x54, 0x04, 0xca, 0x00, 0x0a, 0x00, 0x01,
@@ -97,32 +102,36 @@ void network_connection(int sockfd) {
       bytes_rw = write(sockfd, default_connect, sizeof(default_connect));
     }
   }
+  if(connected){
+    int stay_connected=1;
+    for (;;) {
+      bzero(buff_client, sizeof(buff_client));
 
-  for (;;) {
-    bzero(buff_client, sizeof(buff_client));
+      printf("Hola, escribe tu comando: \n");
+      int respuesta;
 
-    printf("Hola, escribe tu comando: \n");
-    int respuesta;
+      printf("Selleciona un número:\n 1.SUBSCRIBE\n 2.PUBLISH\n 3.DISCONNECT\n "
+            "4.EXIT\n");
+      n = 0;
+      int g = scanf("%d", &respuesta);
 
-    printf("Selleciona un número:\n 1.SUBSCRIBE\n 2.PUBLISH\n 3.DISCONNECT\n "
-           "4.EXIT\n");
-    n = 0;
-    int g = scanf("%d", &respuesta);
+      int f;
+      switch (respuesta) {
+      case 1:
+        break;
+      case 2:
+        printf("¡Adiós!\n");
+        break;
+      case 3:
+        send_disconnect();
+        stay_connected = 0;
+        break;
+      case 5:
+        break;
+        printf("Opción no válida\n");
+      }
+      if (!stay_connected)break;
 
-    int f;
-    switch (respuesta) {
-    case 1:
-      break;
-    case 2:
-      printf("¡Adiós!\n");
-      break;
-    case 3:
-      printf("Saliendo del programa...\n");
-      break;
-    case 5:
-      break;
-      printf("Opción no válida\n");
-    }
 
     while ((buff_client[n++] = getchar()) != '\n')
       ;
@@ -140,6 +149,7 @@ void network_connection(int sockfd) {
       break;
     }
   }
+  }
 }
 
 int main() {
@@ -156,13 +166,9 @@ int main() {
   bzero(&servaddr, sizeof(servaddr));
 
   // assign IP, PORT
-  printf("s1\n");
   servaddr.sin_family = AF_INET;
-  printf("s2\n");
   servaddr.sin_addr.s_addr = inet_addr(broker_ip);
-  printf("s3\n");
   servaddr.sin_port = htons(PORT);
-  printf("s4\n");
 
   // connect the client socket to server socket
   if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0) {

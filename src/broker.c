@@ -110,12 +110,6 @@ int main() {
 
     // Creates a child process
     if ((childpid = fork()) == 0) {
-
-      // Closing the server socket id
-
-      // Send a confirmation message
-      // to the client
-      send(clientSocket, "hi client", strlen("hi client"), 0);
       network_connection(clientSocket);
     }
   }
