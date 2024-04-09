@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-
 #define B_CONNECT 0x10
 #define B_CONNACK 0x20
 #define B_PUBLISH 0x30
@@ -17,9 +16,6 @@ enum connack_response{
   CONNACK_BAD_USERNAME_OR_PASSWORD = 0x04,
   CONNACK_NOT_AUTHORIZED = 0x05
 };
-
-
-
 enum packet_type {
   CONNECT = 1,
   CONNACK = 2,
