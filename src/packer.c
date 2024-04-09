@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 
+
 uint8_t next_byte(uint8_t **buffer) {
   uint8_t byte = **buffer;
   (*buffer)++;

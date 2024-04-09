@@ -29,7 +29,6 @@ void network_connection(int sockfd) {
   uint8_t connected = 0;
   int n;
   int election;
-  uint8_t connected;
   int scanf_r;
   printf("Hola, para acceder a los servicios del servidor, debes realizar un "
          "CONNECT:\n 1.Continuar\n 2.Salir\n");
@@ -92,9 +91,9 @@ void network_connection(int sockfd) {
 
       send_connect(sockfd, customed_connect);
       //hacemos lectura y luego procesamos connack
-      bytes_rw=read(sockfd.buff_broker, sizeof(buff_broker));
+      bytes_rw=read(sockfd,buff_broker, sizeof(buff_broker));
       connected=process_packet(sockfd, &buff_broker[0]);
-      uint8_t connack_response = process_connack(sockfd);
+      uint8_t connack_response = process_packet(sockfd, &buff_broker[0]);
     } else {
       uint8_t default_connect[21] = {0x10, 0x13, 0x00, 0x04, 0x4d, 0x51, 0x54,
                                      0x54, 0x04, 0xca, 0x00, 0x0a, 0x00, 0x01,
