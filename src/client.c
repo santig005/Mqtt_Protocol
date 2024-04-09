@@ -122,7 +122,7 @@ void network_connection(int sockfd) {
         printf("¡Adiós!\n");
         break;
       case 3:
-        send_disconnect();
+        send_disconnect(sockfd);
         stay_connected = 0;
         break;
       case 5:
