@@ -49,3 +49,21 @@ uint8_t process_packet(int connfd, uint8_t *buff) {
   }
   return 0x01;
 }
+void send_connect(int connfd, struct connect *connect_messg) {
+  //calculamos la longitud que tendran los campos de la variable header y del payload, de acuerdo a la longitud del cliente, y a si en las flags hay contraseña, usuario
+  uint16_t variable_header_length = 2+ connect_messg->variable_header.protocol_name.length + 1 + 1 + 2; 
+  uint16_t payload_length = 2 + strlen((const char *)connect_messg->payload.client_id);
+  if (connect_messg->variable_header.connect_flags.bits.will_flag) {
+    payload_length += 2 + strlen((const char *)connect_messg->payload.will_topic) + 2 + strlen((const char *)connect_messg->payload.will_message);
+  }
+  if (connect_messg->variable_header.connect_flags.bits.username) {
+    payload_length += 2 + strlen((const char *)connect_messg->payload.username);
+  }
+  if (connect_messg->variable_header.connect_flags.bits.password) {
+    payload_length += 2 + strlen((const char *)connect_messg->payload.password);
+  }
+  uint32_t remaining_length = variable_header_length + payload_length;
+  
+
+  
+}
