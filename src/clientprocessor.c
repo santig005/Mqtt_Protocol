@@ -68,7 +68,7 @@ void send_connect(int connfd, struct connect *connect_messg) {
   uint8_t fixed_header_length=1+nbytes_remaining_length(remaining_length);
   uint64_t total_length = fixed_header_length +variable_header_length+payload_length;
   uint8_t connect_packet[total_length];
-  uint8_t *ptr = connect_packet[0];
+  uint8_t *ptr = &connect_packet[0];
   pack_byte(&ptr, B_CONNECT);
   pack_remaining_length(&ptr, remaining_length);
   write_string16(&ptr, connect_messg->variable_header.protocol_name.name);

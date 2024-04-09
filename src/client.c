@@ -28,7 +28,7 @@ void network_connection(int sockfd)
   char buff_broker[MAX];
   uint8_t client_id[24];
   uint8_t connected=0;
-
+  int n;
   int election;
   int scanf_r;
   printf("Hola, para acceder a los servicios del servidor, debes realizar un CONNECT:\n 1.Continuar\n 2.Salir\n");
@@ -58,13 +58,13 @@ void network_connection(int sockfd)
         scanf_r = scanf("%d", &username_length);
         uint8_t *username=(uint8_t *)malloc(username_length+1);
         printf("Ingrese el nombre de usario maximo %d caracteres:\n", username_length);
-        scanf("%s", username);
+        scanf_r=scanf("%s", username);
         customed_connect->payload.username=username;
         printf("Ingresa la longitud de la contraseña maximo 65535:\n");
         scanf_r = scanf("%d", &password_length);
         uint8_t *passwd=(uint8_t *)malloc(password_length+1);
         printf("Ingrese la contraseña maximo %d caracteres:\n", password_length);
-        scanf("%s", passwd);
+        scanf_r=scanf("%s", passwd);
         customed_connect->payload.password=passwd;
       }
       else{
@@ -75,7 +75,10 @@ void network_connection(int sockfd)
       customed_connect->variable_header.connect_flags.bits.will_qos=0;
       //name and lenght mqtt
       customed_connect->variable_header.protocol_name.length=4;
-      customed_connect->variable_header.protocol_name.name="MQTT";
+      uint8_t name_protocol[]="MQTT";
+      customed_connect->variable_header.protocol_name.name=name_protocol;
+
+     
       customed_connect->variable_header.protocol_level=4;
       customed_connect->variable_header.keep_alive=1000;
       // retain, clean session y reserved en 0
@@ -92,7 +95,6 @@ void network_connection(int sockfd)
 
     }
   }
-  //estar pendiente del connack
   
 
 
