@@ -23,29 +23,34 @@ void send_disconnect(int connfd) {
   bytes_rw = write(connfd, disconnect, sizeof(disconnect));
 }
 uint8_t process_packet(int connfd, uint8_t *buff) {
+  printf("Processing packet\n");
   uint8_t first_byte = next_byte(&buff);
+  //print the firstbyte of the packet
+  printf("First byte: %x\n", first_byte);
   uint8_t connack_response;
   switch (first_byte) {
   case B_CONNACK:
+    printf("the case is B_CONNACK\n");
     connack_response = process_connack(buff);
+    printf("connack_response: %x\n", connack_response);
     switch (connack_response) {
     case CONNACK_ACCEPTED:
-      printf("Connection accepted");
+      printf("Connection accepted\n");
       break;
     case CONNACK_UNNACCEPTABLE_PROTOCOL_VERSION:
-      printf("Connection UNNACCEPTABLE_PROTOCOL_VERSION");
+      printf("Connection UNNACCEPTABLE_PROTOCOL_VERSION\n");
       break;
     case CONNACK_IDENTIFIER_REJECTED:
-      printf("Connection IDENTIFIER_REJECTED");
+      printf("Connection IDENTIFIER_REJECTED\n");
       break;
     case CONNACK_SERVER_UNAVAILABLE:
-      printf("Connection SERVER_UNAVAILABLE");
+      printf("Connection SERVER_UNAVAILABLE\n");
       break;
     case CONNACK_BAD_USERNAME_OR_PASSWORD:
-      printf("Connection BAD_USERNAME_OR_PASSWORD");
+      printf("Connection BAD_USERNAME_OR_PASSWORD\n");
       break;
     case CONNACK_NOT_AUTHORIZED:
-      printf("Connection NOT_AUTHORIZED");
+      printf("Connection NOT_AUTHORIZED\n");
       break;
     }
   }

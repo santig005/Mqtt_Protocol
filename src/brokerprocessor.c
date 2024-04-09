@@ -66,7 +66,7 @@ void send_connack(int connfd, uint8_t session_present, uint8_t response) {
 }
 uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id) {
   Client *c = Clients_find(clist, client_id);
-  printf("Client id: %s was disconnected\n", client_id)
+  printf("Client id: %s was disconnected\n", client_id);
   if (c == NULL) {
     return 0x01;
   } else {
