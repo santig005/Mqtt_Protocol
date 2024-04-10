@@ -116,8 +116,29 @@ void network_connection(int sockfd) {
 
       int f;
       switch (respuesta) {
+
       case 1:
-        break;
+      struct  subscribe *customed_subscribe = (struct subscribe *)malloc(sizeof(struct subscribe));
+      customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
+      customed_subscribe->variable_header.packet_id = 1;
+      int num_topics;
+      printf("Ingresa el número de temas a los que quieres suscribirte, minimo 1\n");
+      scanf_r = scanf("%d", &num_topics);
+      customed_subscribe->tuples_length = num_topics;
+
+      while(num_topics>0){
+        int topic_length;
+        printf("Ingresa la longitud del tema, maximo 65535\n");
+        scanf_r = scanf("%d", &topic_length);
+        uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
+        printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
+        scanf_r = scanf("%s", topic);
+        customed_subscribe->tuples[num_topics-1].topic_len = topic_length;
+        customed_subscribe->tuples[num_topics-1].topic = topic;
+        customed_subscribe->tuples[num_topics-1].qos = 0;
+      }
+      send_subscribe(sockfd, customed_subscribe);
+      break;
       case 2:
         printf("¡Adiós!\n");
         break;
