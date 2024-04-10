@@ -66,6 +66,7 @@ void send_connack(int connfd, uint8_t session_present, uint8_t response) {
 }
 uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id) {
   Client *c = Clients_find(clist, client_id);
+  printf("The client addres is %p\n", c);
   printf("Client id: %s was disconnected\n", c->client_id);
   if (c == NULL) {
     return 0x01;
@@ -118,7 +119,7 @@ uint8_t process_publish(uint8_t *buff) {
   publish_messg->header.remaining_length = remaining_length(&buff);
 }
 
-uint8_t process_packet(int connfd, uint8_t *buff, uint8_t *client_id) {
+uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
   uint8_t first_byte = next_byte(&buff);
   uint8_t packet_type = (first_byte & 0xF0) >> 4;
   uint8_t response;
@@ -128,13 +129,13 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t *client_id) {
     connect_messg = (struct connect *)malloc(sizeof(struct connect));
     response = process_connect(connect_messg, buff);
     if (response == 0x00) {
-      client_id = connect_messg->payload.client_id;
-      Client *c = Clients_find(clist, client_id);
+      *client_id = connect_messg->payload.client_id;
+      Client *c = Clients_find(clist, *client_id);
       //lets print something of the new client
       printf("==================\n");
       // print the address of memory of c
       printf("Client: %p\n", c);
-      printf("New connection from %s\n");
+      //printf("New connection from %s\n");
       printf("Client ID: %s\n", c->client_id);
       printf("Username: %s\n", c->username);
       printf("Password: %s\n", c->password);
@@ -147,7 +148,8 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t *client_id) {
       return 0x00;
     }
   case DISCONNECT:
-    response = process_disconnect(buff, client_id);
+    printf("This id gonna disconnect %s\n", *client_id);
+    response = process_disconnect(buff, *client_id);
     return response;
   }
   return 0x00;

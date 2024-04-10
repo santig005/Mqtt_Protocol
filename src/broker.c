@@ -23,7 +23,7 @@ void network_connection(int connfd){
     bzero(buff,MAX);
     bytes_rw=read(connfd, buff, sizeof(buff));
     // Here we proccess the buffer
-    uint8_t keep_connection=process_packet(connfd,&buff[0],client_id);
+    uint8_t keep_connection=process_packet(connfd,&buff[0],&client_id);
     if(keep_connection==0)break;
     // Here we clean the buffer again
     bzero(buff,MAX);
