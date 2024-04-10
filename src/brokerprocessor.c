@@ -130,6 +130,15 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t *client_id) {
     if (response == 0x00) {
       client_id = connect_messg->payload.client_id;
       Client *c = Clients_find(clist, client_id);
+      //lets print something of the new client
+      printf("==================\n");
+      // print the address of memory of c
+      printf("Client: %p\n", c);
+      printf("New connection from %s\n");
+      printf("Client ID: %s\n", c->client_id);
+      printf("Username: %s\n", c->username);
+      printf("Password: %s\n", c->password);
+      printf("======================== \n");
       c->session->connfd = connfd;
       send_connack(connfd, 0x01, CONNACK_ACCEPTED);
       return 0x01;
