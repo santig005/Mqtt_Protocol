@@ -13,7 +13,7 @@
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
 #define PORT 8080
-#define broker_ip "54.204.240.27"
+#define broker_ip "54.165.156.239"
 #define SA struct sockaddr
 
 #include "clientprocessor.h"
@@ -126,9 +126,9 @@ void network_connection(int sockfd) {
         printf("Ingresa el número de temas a los que quieres suscribirte, "
                "minimo 1\n");
         scanf_r = scanf("%d", &num_topics);
-        struct packet_topic *topics_pointer = (struct packet_topic *)malloc(
-            num_topics * sizeof(struct packet_topic));
+        struct packet_topic *topics_pointer = (struct packet_topic *)malloc(num_topics * sizeof(struct packet_topic));
         customed_subscribe->payload.tuples_len = num_topics;
+        customed_subscribe->payload.tuples=topics_pointer;
 
         while (num_topics > 0) {
           int topic_length;
@@ -137,11 +137,17 @@ void network_connection(int sockfd) {
           uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
           printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
           scanf_r = scanf("%s", topic);
+          printf("d1\n");
           customed_subscribe->payload.tuples[num_topics - 1].topic_len =
               topic_length;
+          printf("d2\n");
           customed_subscribe->payload.tuples[num_topics - 1].topic = topic;
+          printf("d3\n");
           customed_subscribe->payload.tuples[num_topics - 1].qos = 0;
+          printf("d4\n");
+          num_topics-=1;
         }
+        printf("voy a entrar a send subscribe\n");
         send_subscribe(sockfd, customed_subscribe);
         break;
       case 2:

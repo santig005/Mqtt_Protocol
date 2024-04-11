@@ -101,28 +101,36 @@ void send_connect(int connfd, struct connect *connect_messg) {
 }
 
 void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
-
+  printf("entro a send subscribe\n");
   uint16_t variable_header_length = 1;
-  uint64_t payload_length;
-
+  uint64_t payload_length=0;
+  printf("a01\n");
   for (int i = 0; i < subscribe_messg->payload.tuples_len; i++) {
     payload_length +=
         2 + strlen((const char *)subscribe_messg->payload.tuples[i].topic) + 1;
   }
+  printf("a02\n");
 
   uint32_t remaining_length = variable_header_length + payload_length;
+  printf("a021\n");
   uint8_t fixed_header_length = 1 + nbytes_remaining_length(remaining_length);
-
+  printf("a03\n");
   uint64_t total_length =
       fixed_header_length + variable_header_length + payload_length;
+  printf("035\n");
   uint8_t subscribe_packet[total_length];
+  printf("a04\n");
   uint8_t *ptr = &subscribe_packet[0];
   pack_byte(&ptr, B_SUBSCRIBE);
+  printf("a05\n");
   pack_remaining_length(&ptr, remaining_length);
+  printf("a06\n");
   pack_16b(&ptr, subscribe_messg->variable_header.packet_id);
+  printf("a07\n");
   for (int i = 0; i < subscribe_messg->payload.tuples_len; i++) {
     write_string16(&ptr, subscribe_messg->payload.tuples[i].topic);
     pack_byte(&ptr, subscribe_messg->payload.tuples[i].qos);
   }
+  printf("a08\n");
   bytes_rw = write(connfd, subscribe_packet, total_length);
 }
