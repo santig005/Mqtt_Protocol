@@ -13,8 +13,10 @@
 #include "clientslist.h"
 #include "convertion.h"
 #include "brokerprocessor.h"
+#include "topic.h"
 Clients * clist;
 ssize_t bytes_rw;
+struct topic *root;
 void network_connection(int connfd){
   uint8_t buff[MAX];
   uint8_t *client_id;
@@ -32,6 +34,9 @@ void network_connection(int connfd){
 }
 int main() {
   clist=Clients_newList();
+  uint8_t * name_root=(uint8_t *)malloc(1);
+  strcpy((char *)name_root,"");
+  root=create_topic(name_root);
   // Server socket id
   int sockfd, ret;
 

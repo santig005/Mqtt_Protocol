@@ -32,13 +32,11 @@ uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
     return 0x01;
   }
   connect_messg->variable_header.protocol_level = next_byte(&buff);
-  // Verificamos que sea el protocolo 4
   if (connect_messg->variable_header.protocol_level != 0x04) {
     return 0x01;
   }
   connect_messg->variable_header.connect_flags.byte = next_byte(&buff);
   connect_messg->variable_header.keep_alive = next_16b(&buff);
-  // payload
   read_string16(&buff, &connect_messg->payload.client_id);
   if (connect_messg->variable_header.connect_flags.bits.will_flag) {
     read_string16(&buff, &connect_messg->payload.will_topic);
@@ -78,40 +76,23 @@ uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id) {
   }
   return 0x00;
 }
-/*
-uint8_t process_subscribe(uint8_t * buff, uint8_t first_byte){
-
-  struct subscribe * subscribe_messg=(struct subscribe *)malloc(sizeof(struct
-subscribe)); uint8_t reserved_bytes = (first_byte & 0x0F);
-
-  if(reserved_bytes!=0x02){
-    return 0x01;
+uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
+  struct subscribe *subscribe_messg =
+      (struct subscribe *)malloc(sizeof(struct subscribe));
+  subscribe_messg->header.remaining_length = remaining_length(&buff);
+  subscribe_messg->header.packet_id = next_16b(&buff);
+  uint8_t *topic;
+  uint8_t qos;
+  while (buff != NULL) {
+    read_string16(&buff, &topic);
+    qos = next_byte(&buff);
+    printf("Topic: %s\n", topic);
+    printf("Qos: %d\n", qos);
   }
-
-  subscribe_messg->header.remaining_length=remaining_length(&buff);
-  subscribe_messg->packet_id=next_16b(&buff);
-  subscribe_messg->header.remaining_length -= sizeof(uint16_t);
-
-  int i = 0;
-  while (subscribe_messg->header.remaining_length > 0) {
-
-       Read length bytes of the first topic filter
-      uint16_t topic_len = next_16b(&buff);
-      subscribe_messg->header.remaining_length -= sizeof(uint16_t);
-
-      subscribe_messg->tuples[i].topic_len = topic_len;
-      unpack_bytes(&buff, topic_len, subscribe_messg->tuples[i].topic);
-      subscribe_messg->header.remaining_length -= topic_len;
-      subscribe_messg->tuples[i].qos = next_byte(&buff);
-      subscribe_messg->header.remaining_length -= sizeof(uint8_t);
-      i++;
-  }
-
-   subscribe_messg->tuples_len = i;
-
-    return 0x00;
-  }
-*/
+  printf("now we print the topics\n");
+  print_topic(0,root);
+  return 0x00;
+}
 
 uint8_t process_publish(uint8_t *buff) {
   struct publish *publish_messg =
@@ -131,11 +112,8 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
     if (response == 0x00) {
       *client_id = connect_messg->payload.client_id;
       Client *c = Clients_find(clist, *client_id);
-      //lets print something of the new client
       printf("==================\n");
-      // print the address of memory of c
       printf("Client: %p\n", c);
-      //printf("New connection from %s\n");
       printf("Client ID: %s\n", c->client_id);
       printf("Username: %s\n", c->username);
       printf("Password: %s\n", c->password);
@@ -152,5 +130,8 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
     response = process_disconnect(buff, *client_id);
     return response;
   }
+  case SUBSCRIBE:
+    response = process_subscribe(buff, first_byte);
+    return response;
   return 0x00;
 }

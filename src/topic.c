@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "subscription.h"
+#include "subscription.h"
+#include "clientslist.h"
+#include "broker.h"
 struct topic *create_topic(uint8_t *name) {
   struct topic *t = (struct topic *)malloc(sizeof(struct topic));
   t->name = name;
@@ -46,6 +48,15 @@ void print_topic(int level, struct topic *head) {
       printf("  ");
     }
     printf("Topic: %s\n", current->name);
+    if(current->subscriptions!=NULL){
+      struct subscription *current_sub=current->subscriptions;
+      printf("\tSubscribers:\n");
+      while(current_sub!=NULL){
+        Client * c=Clients_find(clist, current_sub->subscriber->session->client_id);
+        printf("\t\tClient ID: %s\n", c->client_id);
+        current_sub=current_sub->next;
+      }
+    }
     print_topic(level + 1, current->subtopics);
     current = current->next;
   }

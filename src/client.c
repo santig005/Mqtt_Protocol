@@ -124,11 +124,12 @@ void network_connection(int sockfd) {
       int num_topics;
       printf("Ingresa el número de temas a los que quieres suscribirte, minimo 1\n");
       scanf_r = scanf("%d", &num_topics);
-      customed_subscribe->tuples_length = num_topics;
+      struct topic * topics_pointer=(struct topic *)malloc(num_topics*sizeof(struct topic));
+      customed_subscribe->tuples = topics_pointer;
 
       while(num_topics>0){
         int topic_length;
-        printf("Ingresa la longitud del tema, maximo 65535\n");
+        printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
         scanf_r = scanf("%d", &topic_length);
         uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
         printf("Ingresa el tema, maximo %d caracteres\n", topic_length);

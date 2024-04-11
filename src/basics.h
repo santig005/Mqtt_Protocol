@@ -93,6 +93,11 @@ struct connack {
     uint8_t return_code;
   } variable_header;
 };
+struct topic{
+  uint16_t topic_len;
+  uint8_t *topic;
+  uint8_t qos;
+};
 
 struct subscribe {
 
@@ -102,11 +107,8 @@ struct subscribe {
 
     unsigned short tuples_len;
 
-    struct {
-        unsigned short topic_len;
-        unsigned char *topic;
-        unsigned qos;
-    } *tuples;
+    struct topic *tuples;
+
 };
 
 struct publish {

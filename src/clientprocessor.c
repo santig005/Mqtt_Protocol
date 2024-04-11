@@ -97,7 +97,7 @@ void send_connect(int connfd, struct connect *connect_messg) {
 
 void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
   
-  uint16_t variable_header_length = subscribe_messg->packet_id;
+  uint16_t variable_header_length = 1 
   uint64_t payload_length;
 
   for (int i = 0; i < subscribe_messg->tuples_length; i++) {
@@ -113,9 +113,9 @@ void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
   pack_byte(&ptr, B_SUBSCRIBE);
   pack_remaining_length(&ptr, remaining_length);
   pack_16b(&ptr, subscribe_messg->packet_id);
-
   for (int i = 0; i < subscribe_messg->tuples_length; i++) {
     write_string16(&ptr, subscribe_messg->tuples[i].topic);
     pack_byte(&ptr, subscribe_messg->tuples[i].qos);
   }
   bytes_rw = write(connfd, subscribe_packet, total_length);
+}
