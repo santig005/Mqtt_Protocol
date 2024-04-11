@@ -76,19 +76,21 @@ uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id) {
 uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
   struct subscribe *subscribe_messg =
       (struct subscribe *)malloc(sizeof(struct subscribe));
+      uint32_t local_remaining=0;
   subscribe_messg->header.remaining_length = remaining_length(&buff);
+  local_remaining=subscribe_messg->header.remaining_length;
+  printf("Local r length: %d\n", local_remaining);
   subscribe_messg->variable_header.packet_id = next_16b(&buff);
-  uint8_t *topic;
-  uint8_t qos;
-  while (buff != NULL) {
-    read_string16(&buff, &topic);
-    qos = next_byte(&buff);
-    printf("Topic: %s\n", topic);
-    printf("Qos: %d\n", qos);
+  local_remaining-=2;
+  printf("Local r length: %d\n", local_remaining);
+  while (local_remaining > 0) {
+    struct packet_type *packet = (struct packet_type *)malloc(sizeof(struct packet_type));
+    packet->topic.length = next_16b(&buff);
+    packet->topic = next_nbytes(&buff, packet->topic.length);
+    packet->qos = next_byte(&buff);
+    local_remaining=local_remaining-2-1-packet->topic.length;
+    printf("Local r length: %d\n", local_remaining);
   }
-  printf("now we print the topics\n");
-  print_topic(0, root);
-  return 0x00;
 }
 
 uint8_t process_publish(uint8_t *buff) {
