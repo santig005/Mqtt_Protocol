@@ -90,9 +90,9 @@ void network_connection(int sockfd) {
       customed_connect->variable_header.connect_flags.bits.will_retain = 0;
 
       send_connect(sockfd, customed_connect);
-      //hacemos lectura y luego procesamos connack
-      bytes_rw=read(sockfd,buff_broker, sizeof(buff_broker));
-      connected=process_packet(sockfd, &buff_broker[0]);
+      // hacemos lectura y luego procesamos connack
+      bytes_rw = read(sockfd, buff_broker, sizeof(buff_broker));
+      connected = process_packet(sockfd, &buff_broker[0]);
       uint8_t connack_response = process_packet(sockfd, &buff_broker[0]);
     } else {
       uint8_t default_connect[21] = {0x10, 0x13, 0x00, 0x04, 0x4d, 0x51, 0x54,
@@ -101,8 +101,8 @@ void network_connection(int sockfd) {
       bytes_rw = write(sockfd, default_connect, sizeof(default_connect));
     }
   }
-  if(connected){
-    int stay_connected=1;
+  if (connected) {
+    int stay_connected = 1;
     for (;;) {
       bzero(buff_client, sizeof(buff_client));
 
@@ -110,36 +110,40 @@ void network_connection(int sockfd) {
       int respuesta;
 
       printf("Selleciona un número:\n 1.SUBSCRIBE\n 2.PUBLISH\n 3.DISCONNECT\n "
-            "4.EXIT\n");
+             "4.EXIT\n");
       n = 0;
       int g = scanf("%d", &respuesta);
 
       int f;
+      struct subscribe *customed_subscribe =
+          (struct subscribe *)malloc(sizeof(struct subscribe));
       switch (respuesta) {
 
       case 1:
-      struct  subscribe *customed_subscribe = (struct subscribe *)malloc(sizeof(struct subscribe));
-      customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
-      customed_subscribe->variable_header.packet_id = 1;
-      int num_topics;
-      printf("Ingresa el número de temas a los que quieres suscribirte, minimo 1\n");
-      scanf_r = scanf("%d", &num_topics);
-      struct topic * topics_pointer=(struct topic *)malloc(num_topics*sizeof(struct topic));
-      customed_subscribe->tuples = topics_pointer;
+        customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
+        customed_subscribe->variable_header.packet_id = 1;
+        int num_topics;
+        printf("Ingresa el número de temas a los que quieres suscribirte, "
+               "minimo 1\n");
+        scanf_r = scanf("%d", &num_topics);
+        struct packet_topic *topics_pointer = (struct packet_topic *)malloc(
+            num_topics * sizeof(struct packet_topic));
+        customed_subscribe->payload.tuples_len = num_topics;
 
-      while(num_topics>0){
-        int topic_length;
-        printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
-        scanf_r = scanf("%d", &topic_length);
-        uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
-        printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
-        scanf_r = scanf("%s", topic);
-        customed_subscribe->tuples[num_topics-1].topic_len = topic_length;
-        customed_subscribe->tuples[num_topics-1].topic = topic;
-        customed_subscribe->tuples[num_topics-1].qos = 0;
-      }
-      send_subscribe(sockfd, customed_subscribe);
-      break;
+        while (num_topics > 0) {
+          int topic_length;
+          printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
+          scanf_r = scanf("%d", &topic_length);
+          uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
+          printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
+          scanf_r = scanf("%s", topic);
+          customed_subscribe->payload.tuples[num_topics - 1].topic_len =
+              topic_length;
+          customed_subscribe->payload.tuples[num_topics - 1].topic = topic;
+          customed_subscribe->payload.tuples[num_topics - 1].qos = 0;
+        }
+        send_subscribe(sockfd, customed_subscribe);
+        break;
       case 2:
         printf("¡Adiós!\n");
         break;
@@ -151,25 +155,25 @@ void network_connection(int sockfd) {
         break;
         printf("Opción no válida\n");
       }
-      if (!stay_connected)break;
+      if (!stay_connected)
+        break;
 
+      while ((buff_client[n++] = getchar()) != '\n')
+        ;
 
-    while ((buff_client[n++] = getchar()) != '\n')
-      ;
+      char *path = "log.log";
 
-    char *path = "log.log";
+      bzero(buff_broker, sizeof(buff_broker));
+      int s = read(sockfd, buff_broker, sizeof(buff_broker));
+      printf("From Server : %s", buff_broker);
 
-    bzero(buff_broker, sizeof(buff_broker));
-    int s = read(sockfd, buff_broker, sizeof(buff_broker));
-    printf("From Server : %s", buff_broker);
+      // write_log_to_client(*path, client_ip , buff_client, buff_broker);
 
-    // write_log_to_client(*path, client_ip , buff_client, buff_broker);
-
-    if ((strncmp(buff_client, "EXIT", 4)) == 0) {
-      printf("Client Exit...\n");
-      break;
+      if ((strncmp(buff_client, "EXIT", 4)) == 0) {
+        printf("Client Exit...\n");
+        break;
+      }
     }
-  }
   }
 }
 

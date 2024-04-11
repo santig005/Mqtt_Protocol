@@ -7,8 +7,9 @@
 #define B_CONNACK 0x20
 #define B_PUBLISH 0x30
 #define B_DISCONNECT 0xe0
+#define B_SUBSCRIBE 0x82
 
-enum connack_response{
+enum connack_response {
   CONNACK_ACCEPTED = 0x00,
   CONNACK_UNNACCEPTABLE_PROTOCOL_VERSION = 0x01,
   CONNACK_IDENTIFIER_REJECTED = 0x02,
@@ -24,11 +25,7 @@ enum packet_type {
   DISCONNECT = 14
 };
 
-enum qos_level { 
-  AT_MOST_ONCE,
-  AT_LEAST_ONCE,
-  EXACTLY_ONCE
-};
+enum qos_level { AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE };
 
 union basic_header {
   uint8_t byte;
@@ -93,7 +90,7 @@ struct connack {
     uint8_t return_code;
   } variable_header;
 };
-struct topic{
+struct packet_topic {
   uint16_t topic_len;
   uint8_t *topic;
   uint8_t qos;
@@ -101,14 +98,15 @@ struct topic{
 
 struct subscribe {
 
-    struct fixed_header header;
-
+  struct fixed_header header;
+  struct {
     unsigned short packet_id;
-
+  } variable_header;
+  struct {
     unsigned short tuples_len;
 
-    struct topic *tuples;
-
+    struct packet_topic *tuples;
+  } payload;
 };
 
 struct publish {
@@ -125,6 +123,5 @@ struct packet {
   struct connack CONNACK;
   struct publish PUBLISH;
 };
-
 
 #endif

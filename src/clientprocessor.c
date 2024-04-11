@@ -25,7 +25,7 @@ void send_disconnect(int connfd) {
 uint8_t process_packet(int connfd, uint8_t *buff) {
   printf("Processing packet\n");
   uint8_t first_byte = next_byte(&buff);
-  //print the firstbyte of the packet
+  // print the firstbyte of the packet
   printf("First byte: %x\n", first_byte);
   uint8_t connack_response;
   switch (first_byte) {
@@ -57,10 +57,14 @@ uint8_t process_packet(int connfd, uint8_t *buff) {
   return 0x01;
 }
 void send_connect(int connfd, struct connect *connect_messg) {
-  uint16_t variable_header_length = 2+ connect_messg->variable_header.protocol_name.length + 1 + 1 + 2; 
-  uint64_t payload_length = 2 + strlen((const char *)connect_messg->payload.client_id);
+  uint16_t variable_header_length =
+      2 + connect_messg->variable_header.protocol_name.length + 1 + 1 + 2;
+  uint64_t payload_length =
+      2 + strlen((const char *)connect_messg->payload.client_id);
   if (connect_messg->variable_header.connect_flags.bits.will_flag) {
-    payload_length += 2 + strlen((const char *)connect_messg->payload.will_topic) + 2 + strlen((const char *)connect_messg->payload.will_message);
+    payload_length +=
+        2 + strlen((const char *)connect_messg->payload.will_topic) + 2 +
+        strlen((const char *)connect_messg->payload.will_message);
   }
   if (connect_messg->variable_header.connect_flags.bits.username) {
     payload_length += 2 + strlen((const char *)connect_messg->payload.username);
@@ -70,8 +74,9 @@ void send_connect(int connfd, struct connect *connect_messg) {
   }
   uint32_t remaining_length = variable_header_length + payload_length;
 
-  uint8_t fixed_header_length=1+nbytes_remaining_length(remaining_length);
-  uint64_t total_length = fixed_header_length +variable_header_length+payload_length;
+  uint8_t fixed_header_length = 1 + nbytes_remaining_length(remaining_length);
+  uint64_t total_length =
+      fixed_header_length + variable_header_length + payload_length;
   uint8_t connect_packet[total_length];
   uint8_t *ptr = &connect_packet[0];
   pack_byte(&ptr, B_CONNECT);
@@ -96,26 +101,28 @@ void send_connect(int connfd, struct connect *connect_messg) {
 }
 
 void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
-  
-  uint16_t variable_header_length = 1 
+
+  uint16_t variable_header_length = 1;
   uint64_t payload_length;
 
-  for (int i = 0; i < subscribe_messg->tuples_length; i++) {
-    payload_length += 2 + strlen((const char *)subscribe_messg->tuples[i].topic)+1;
+  for (int i = 0; i < subscribe_messg->payload.tuples_len; i++) {
+    payload_length +=
+        2 + strlen((const char *)subscribe_messg->payload.tuples[i].topic) + 1;
   }
 
   uint32_t remaining_length = variable_header_length + payload_length;
   uint8_t fixed_header_length = 1 + nbytes_remaining_length(remaining_length);
 
-  uint64_t total_length = fixed_header_length + variable_header_length + payload_length;
+  uint64_t total_length =
+      fixed_header_length + variable_header_length + payload_length;
   uint8_t subscribe_packet[total_length];
   uint8_t *ptr = &subscribe_packet[0];
   pack_byte(&ptr, B_SUBSCRIBE);
   pack_remaining_length(&ptr, remaining_length);
-  pack_16b(&ptr, subscribe_messg->packet_id);
-  for (int i = 0; i < subscribe_messg->tuples_length; i++) {
-    write_string16(&ptr, subscribe_messg->tuples[i].topic);
-    pack_byte(&ptr, subscribe_messg->tuples[i].qos);
+  pack_16b(&ptr, subscribe_messg->variable_header.packet_id);
+  for (int i = 0; i < subscribe_messg->payload.tuples_len; i++) {
+    write_string16(&ptr, subscribe_messg->payload.tuples[i].topic);
+    pack_byte(&ptr, subscribe_messg->payload.tuples[i].qos);
   }
   bytes_rw = write(connfd, subscribe_packet, total_length);
 }
