@@ -102,7 +102,7 @@ void send_connect(int connfd, struct connect *connect_messg) {
 
 void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
   printf("entro a send subscribe\n");
-  uint16_t variable_header_length = 1;
+  uint16_t variable_header_length = 2;
   uint64_t payload_length=0;
   printf("a01\n");
   for (int i = 0; i < subscribe_messg->payload.tuples_len; i++) {

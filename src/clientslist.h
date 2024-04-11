@@ -4,11 +4,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "basics.h"
+#include "subscription.h"
 
 struct client_session{
   uint8_t *client_id;
   uint8_t *will_topic;
   uint8_t *will_message;
+  struct subscription * subscriptions;
   int connfd;
   bool connected;
 };

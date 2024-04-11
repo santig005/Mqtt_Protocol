@@ -49,6 +49,7 @@ uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
   }
   Client *exist = Clients_find(clist, connect_messg->payload.client_id);
   if (exist == NULL) {
+    printf("client had to be added\n");
     Clients_print(clist);
     Clients_add(clist, connect_messg);
   }
@@ -74,6 +75,7 @@ uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id) {
   return 0x00;
 }
 uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
+  Client *c=Clients_find(clist,client_id);
   struct subscribe *subscribe_messg =
       (struct subscribe *)malloc(sizeof(struct subscribe));
       uint32_t local_remaining=0;
@@ -84,13 +86,17 @@ uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
   local_remaining-=2;
   printf("Local r length: %d\n", local_remaining);
   while (local_remaining > 0) {
-    struct packet_type *packet = (struct packet_type *)malloc(sizeof(struct packet_type));
-    packet->topic.length = next_16b(&buff);
-    packet->topic = next_nbytes(&buff, packet->topic.length);
+    struct packet_topic *packet = (struct packet_topic *)malloc(sizeof(struct packet_topic));
+    packet->topic_len = next_16b(&buff);
+    packet->topic = next_nbytes(&buff, packet->topic_len);
     packet->qos = next_byte(&buff);
-    local_remaining=local_remaining-2-1-packet->topic.length;
-    printf("Local r length: %d\n", local_remaining);
+    local_remaining=local_remaining-2-1-packet->topic_len;
+    struct subscription * subscription_ob=new_subscription(c->session,packet->qos,packet->topic);
+    add_subscription(c->session->subscriptions,subscription_ob);
+    struct topic * topic_in_root = search_topic(root,subscription_ob->topic);
+    Topic_add_subscription(topic_in_root,subscription_ob);
   }
+  print_topic(0,root);
 }
 
 uint8_t process_publish(uint8_t *buff) {

@@ -13,8 +13,8 @@ struct subscriber{
     struct client_session * session;
 };
 
-
-void add_subscription(struct subscription * head, struct client_session * session, uint8_t qos, uint8_t * topic_name);
+struct subscription* new_subscription(struct client_session * session, uint8_t qos, uint8_t * topic_name);
+void add_subscription(struct subscription * head, struct subscription * s);
 
 
 
