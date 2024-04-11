@@ -12,14 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include "basics.h"
 #include "broker.h"
 #include "brokerprocessor.h"
 #include "clientslist.h"
 #include "packer.h"
-
-
 
 uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
   connect_messg->header.remaining_length = remaining_length(&buff);
@@ -59,8 +56,8 @@ uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
   return 0x00;
 }
 void send_connack(int connfd, uint8_t session_present, uint8_t response) {
-  uint8_t connack[4] = {B_CONNACK, 0x02, session_present,response};
-  bytes_rw=write(connfd, connack, sizeof(connack));
+  uint8_t connack[4] = {B_CONNACK, 0x02, session_present, response};
+  bytes_rw = write(connfd, connack, sizeof(connack));
 }
 uint8_t process_disconnect(uint8_t *buff, uint8_t *client_id) {
   Client *c = Clients_find(clist, client_id);
@@ -80,7 +77,7 @@ uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
   struct subscribe *subscribe_messg =
       (struct subscribe *)malloc(sizeof(struct subscribe));
   subscribe_messg->header.remaining_length = remaining_length(&buff);
-  subscribe_messg->header.packet_id = next_16b(&buff);
+  subscribe_messg->variable_header.packet_id = next_16b(&buff);
   uint8_t *topic;
   uint8_t qos;
   while (buff != NULL) {
@@ -90,7 +87,7 @@ uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
     printf("Qos: %d\n", qos);
   }
   printf("now we print the topics\n");
-  print_topic(0,root);
+  print_topic(0, root);
   return 0x00;
 }
 
@@ -102,11 +99,10 @@ uint8_t process_publish(uint8_t *buff) {
 
 uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
   uint8_t first_byte = next_byte(&buff);
-  uint8_t packet_type = (first_byte & 0xF0) >> 4;
   uint8_t response;
   struct connect *connect_messg;
-  switch (packet_type) {
-  case CONNECT:
+  switch (first_byte) {
+  case B_CONNECT:
     connect_messg = (struct connect *)malloc(sizeof(struct connect));
     response = process_connect(connect_messg, buff);
     if (response == 0x00) {
@@ -125,13 +121,13 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
       send_connack(connfd, 0x00, response);
       return 0x00;
     }
-  case DISCONNECT:
+  case B_DISCONNECT:
     printf("This id gonna disconnect %s\n", *client_id);
     response = process_disconnect(buff, *client_id);
     return response;
+  case B_SUBSCRIBE:
+    response = process_subscribe(buff, *client_id);
+    return 0x01;
   }
-  case SUBSCRIBE:
-    response = process_subscribe(buff, first_byte);
-    return response;
-  return 0x00;
+  return 0x01;
 }
