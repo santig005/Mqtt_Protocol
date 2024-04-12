@@ -62,16 +62,20 @@ void print_topic(int level, struct topic *head) {
     current = current->next;
   }
 }
-void Topic_add_subscription(struct topic * t, struct subscription * s) {
-  struct subscription * current = t->subscriptions;
+void Topic_add_subscription(struct topic ** t, struct subscription * s) {
+printf("broooooo\n");
+printf("tiene sus %p\n",(*t)->subscriptions);
+  struct subscription * current = (*t)->subscriptions;
+printf("The current starts in %p\n",current);
   if (current != NULL) {
     while (current->next != NULL) {
       current = current->next;
     }
     current->next = s;
   } else {
-    t->subscriptions = s;
+    (*t)->subscriptions = s;
   }
+	printf("the final subs is %p\n",(*t)->subscriptions);
 }
 struct topic *search_topic(struct topic *t, uint8_t *name) {
   uint8_t *token = (uint8_t *)strtok((char *)name, "/");
@@ -90,7 +94,7 @@ struct topic *search_topic(struct topic *t, uint8_t *name) {
         current = current->next;
       }
       if(found==NULL){
-        current=add_subtopic(&level, token);
+       current= add_subtopic(&level, token);
       }
     }
     else{
@@ -99,7 +103,7 @@ struct topic *search_topic(struct topic *t, uint8_t *name) {
     level=current;
     token = strtok(NULL, "/");
   }
-  return level;
+return level;
 }
 
 

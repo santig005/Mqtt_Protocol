@@ -10,8 +10,8 @@ struct subscription * new_subscription(struct client_session * session, uint8_t 
 }
 void add_subscription(struct subscription * head, struct subscription * s){
     struct subscription *current = head;
-    while(current->next!=NULL){
+    while(current!=NULL){
         current = current->next;
     }
-    current->next = s;
+    current = s;
 }

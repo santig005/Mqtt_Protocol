@@ -90,14 +90,25 @@ uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
   while (local_remaining > 0) {
     struct packet_topic *packet = (struct packet_topic *)malloc(sizeof(struct packet_topic));
     packet->topic_len = next_16b(&buff);
+printf("12\n");
     packet->topic = next_nbytes(&buff, packet->topic_len);
     packet->qos = next_byte(&buff);
+printf("l3\n");
     local_remaining=local_remaining-2-1-packet->topic_len;
     struct subscription * subscription_ob=new_subscription(c->session,packet->qos,packet->topic);
+printf("14\n");
+printf("cad %p\n",c);
+printf("sad %p\n",c->session);
+printf("suad %p\n",c->session->subscriptions);
     add_subscription(c->session->subscriptions,subscription_ob);
+printf("l41\n");
     struct topic * topic_in_root = search_topic(root,subscription_ob->topic);
-    Topic_add_subscription(topic_in_root,subscription_ob);
+printf("142\n");
+printf("topic in root %p\n",topic_in_root);
+    Topic_add_subscription(&topic_in_root,subscription_ob);
+	printf("l5\n");
   }
+printf("let's print the tree");
   print_topic(0,root);
 }
 
