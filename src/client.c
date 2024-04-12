@@ -140,17 +140,12 @@ void network_connection(int sockfd) {
           uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
           printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
           scanf_r = scanf("%s", topic);
-          printf("d1\n");
           customed_subscribe->payload.tuples[num_topics - 1].topic_len =
               topic_length;
-          printf("d2\n");
           customed_subscribe->payload.tuples[num_topics - 1].topic = topic;
-          printf("d3\n");
           customed_subscribe->payload.tuples[num_topics - 1].qos = 0;
-          printf("d4\n");
           num_topics-=1;
         }
-        printf("voy a entrar a send subscribe\n");
         send_subscribe(sockfd, customed_subscribe);
         break;
       case 2:
@@ -186,28 +181,13 @@ void network_connection(int sockfd) {
         send_disconnect(sockfd);
         stay_connected = 0;
         break;
-      case 5:
-        break;
-        printf("Opción no válida\n");
       }
       if (!stay_connected)
         break;
 
-      while ((buff_client[n++] = getchar()) != '\n')
-        ;
-
       char *path = "log.log";
 
       bzero(buff_broker, sizeof(buff_broker));
-      int s = read(sockfd, buff_broker, sizeof(buff_broker));
-      printf("From Server : %s", buff_broker);
-
-      // write_log_to_client(*path, client_ip , buff_client, buff_broker);
-
-      if ((strncmp(buff_client, "EXIT", 4)) == 0) {
-        printf("Client Exit...\n");
-        break;
-      }
     }
   }
 }

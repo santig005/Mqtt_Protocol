@@ -21,22 +21,13 @@ ssize_t bytes_rw;
 struct topic *root;
 void* network_connection(void * arg){
 int connfd=*((int *)arg);
-printf("cuando empieza una nueva conexion\n");
-printf("when the connect starts clist is %p\n",clist);
-printf("and its head is %p\n",clist->head);
   uint8_t buff[MAX];
   uint8_t *client_id;
   int n;
   for(;;){
-printf("inicia el forok\n");
-printf("when the connect starts clist is %p\n",clist);
-printf("and its head is %p\n",clist->head);    bzero(buff,MAX);
     bytes_rw=read(connfd, buff, sizeof(buff));
     // Here we proccess the buffer
     uint8_t keep_connection=process_packet(connfd,&buff[0],&client_id);
-printf("in the network when was processed\n");
-printf("when the connect starts clist is %p\n",clist);
-printf("and its head is %p\n",clist->head);
     if(keep_connection==0)break;
     // Here we clean the buffer again
     bzero(buff,MAX);
@@ -44,17 +35,10 @@ printf("and its head is %p\n",clist->head);
   }
 }
 int main() {
-printf("the clist before %p\n",clist);
   clist=Clients_newList();
-//clist->mutex = PTHREAD_MUTEX_INITIALIZER;
-//pthread_mutex_init(&clist_mutex,NULL);
-printf("the clist after %p\n",clist);
   uint8_t * name_root=(uint8_t *)malloc(1);
   strcpy((char *)name_root,"");
-printf("when the connect starts clist is %p\n",clist);
-printf("and its head is %p\n",clist->head);printf("the root before %p\n", root);
   root=create_topic(name_root);
-printf("the root after %p\n",root);
   // Server socket id
   int sockfd, ret;
 
@@ -124,9 +108,7 @@ printf("the root after %p\n",root);
 
     // Displaying information of
     // connected client
-printf("when i have accepted a new connection\n");
-printf("when the connect starts clist is %p\n",clist);
-printf("and its head is %p\n",clist->head);
+
     printf("Connection accepted from %s:%d\n", inet_ntoa(cliAddr.sin_addr),
            ntohs(cliAddr.sin_port));
 

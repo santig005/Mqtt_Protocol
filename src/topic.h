@@ -16,7 +16,6 @@ struct topic {
 };
 
 struct topic *create_topic(uint8_t *name);
-//struct topic * add_topic(struct topic **t, uint8_t *name);
 struct topic *add_subtopic(struct topic **t, uint8_t *name);
 void print_topic(int level, struct topic *t);
 void Topic_add_subscription(struct topic ** t, struct subscription * s);
