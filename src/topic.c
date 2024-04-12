@@ -90,7 +90,7 @@ struct topic *search_topic(struct topic *t, uint8_t *name) {
         current = current->next;
       }
       if(found==NULL){
-        add_subtopic(&level, token);
+        current=add_subtopic(&level, token);
       }
     }
     else{
@@ -99,6 +99,7 @@ struct topic *search_topic(struct topic *t, uint8_t *name) {
     level=current;
     token = strtok(NULL, "/");
   }
+  return level;
 }
 
 

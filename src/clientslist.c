@@ -17,13 +17,15 @@ void Clients_add(Clients *list, struct connect *cn) {
   session->client_id = cn->payload.client_id;
   session->will_topic = cn->payload.will_topic;
   session->will_message = cn->payload.will_message;
-  session->connected = true;
+  session->connected = true;s
   new_client->session = session;
   new_client->next = NULL;
 
   if (list->head == NULL) {
+    print("Adding client to the head of the list\n")
     list->head = new_client;
   } else {
+    print("Adding client to the end of the list\n")
     Client *current = list->head;
     while (current->next != NULL) {
       current = current->next;

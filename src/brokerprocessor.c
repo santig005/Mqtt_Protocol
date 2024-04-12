@@ -50,9 +50,11 @@ uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
   Client *exist = Clients_find(clist, connect_messg->payload.client_id);
   if (exist == NULL) {
     printf("client had to be added\n");
+    printf("before adding\n");
     Clients_print(clist);
     Clients_add(clist, connect_messg);
   }
+  printf("after adding\n");
   Clients_print(clist);
   return 0x00;
 }
