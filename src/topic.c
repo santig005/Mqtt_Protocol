@@ -5,7 +5,7 @@
 #include "subscription.h"
 #include "clientslist.h"
 #include "broker.h"
-
+#include "brokerprocessor.h"
 struct topic *create_topic(uint8_t *name) {
   struct topic *t = (struct topic *)malloc(sizeof(struct topic));
   t->name = name;

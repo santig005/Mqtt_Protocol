@@ -17,7 +17,8 @@
 #include "brokerprocessor.h"
 #include "clientslist.h"
 #include "packer.h"
-
+Clients * clist;
+pthread_mutex_t clist_mutex=PTHREAD_MUTEX_INITIALIZER;
 uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
 printf("when the connect starts clist is %p\n",clist);
 printf("and its head is %p\n",clist->head);
@@ -54,9 +55,9 @@ printf("and its head is %p\n",clist->head);
     printf("client had to be added\n");
     printf("before adding\n");
     Clients_print(clist);
-	pthread_mutex_lock(&list_mutex);
+	pthread_mutex_lock(&clist_mutex);
     Clients_add(clist, connect_messg);
-pthread_mutex_unlock(&list_mutex);
+pthread_mutex_unlock(&clist_mutex);
   }
   printf("after adding\n");
   Clients_print(clist);

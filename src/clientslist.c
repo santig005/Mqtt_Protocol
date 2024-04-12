@@ -1,7 +1,7 @@
 #include "clientslist.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include <pthread.h>
 Clients * Clients_newList() {
     Clients *newList = (Clients*)malloc(sizeof(Clients));
     newList->head = NULL;

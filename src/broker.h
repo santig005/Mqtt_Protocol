@@ -5,9 +5,9 @@
 #ifndef BROKER_H
 #define BROKER_H
 
- Clients * clist;
-extern pthread_mutex_t list_mutex;
+//extern Clients * clist;
+//extern pthread_mutex_t clist_mutex;
 extern struct topic *root;
 extern ssize_t bytes_rw;
-void network_connection(int conffd);
+void* network_connection(void * arg);
 #endif

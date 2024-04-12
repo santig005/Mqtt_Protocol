@@ -15,11 +15,12 @@
 #include "convertion.h"
 #include "brokerprocessor.h"
 #include "topic.h"
-Clients * clist=NULL;
-pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;
+//Clients * clist;
+//pthread_mutex_t clist_mutex = PTHREAD_MUTEX_INITIALIZER;
 ssize_t bytes_rw;
 struct topic *root;
-void network_connection(int connfd){
+void* network_connection(void * arg){
+int connfd=*((int *)arg);
 printf("cuando empieza una nueva conexion\n");
 printf("when the connect starts clist is %p\n",clist);
 printf("and its head is %p\n",clist->head);
@@ -45,6 +46,8 @@ printf("and its head is %p\n",clist->head);
 int main() {
 printf("the clist before %p\n",clist);
   clist=Clients_newList();
+//clist->mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_init(&clist_mutex,NULL);
 printf("the clist after %p\n",clist);
   uint8_t * name_root=(uint8_t *)malloc(1);
   strcpy((char *)name_root,"");
@@ -132,9 +135,11 @@ printf("and its head is %p\n",clist->head);
     printf("Clients connected: %d\n\n", ++cnt);
 
     // Creates a child process
-    if ((childpid = fork()) == 0) {
-      network_connection(clientSocket);
-    }
+   // if ((childpid = fork()) == 0) {
+    //  network_connection(clientSocket);
+   // }
+	pthread_t tid;
+pthread_create(&tid,NULL,network_connection,&clientSocket);
   }
 
   // Close the client socket id

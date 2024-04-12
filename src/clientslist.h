@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <pthread.h>
 #include "basics.h"
 #include "subscription.h"
 
@@ -25,6 +26,7 @@ typedef struct client{
 
 typedef struct clients {
     Client *head;
+	pthread_mutex_t mutex;
 }Clients;
 
 Clients * Clients_newList();
