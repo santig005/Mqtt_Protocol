@@ -134,3 +134,29 @@ void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
   printf("a08\n");
   bytes_rw = write(connfd, subscribe_packet, total_length);
 }
+
+void send_publish(int connfd, struct subscribe *publish_messg){
+  
+  struct publish *publish_messg = (struct publish *)malloc(sizeof(struct publish));
+  uint16_t variable_header_length = 2 + strlen((const char *)publish_messg->variable_header.topic);
+  uint64_t payload_length = strlen((const char *)publish_messg->payload.message);
+
+  uint32_t remaining_length = variable_header_length + payload_length;
+  uint8_t fixed_header_length = 1 + nbytes_remaining_length(remaining_length);
+
+  uint64_t total_length = fixed_header_length + variable_header_length + payload_length;
+  uint8_t publish_packet[total_length];
+
+  uint8_t *ptr = &publish_packet[0];
+  pack_byte(&ptr, B_PUBLISH);
+  pack_remaining_length(&ptr, remaining_length);
+  write_string16(&ptr, publish_messg->variable_header.topic);
+
+  /*Para calidad de servicio diferente de cero(0)
+    pack_16b(&ptr, publish_messg->variable_header.packet_id);
+  write_string16(&ptr, publish_messg->payload.message);
+  */
+
+  bytes_rw = write(connfd, publish_packet, total_length);
+
+}

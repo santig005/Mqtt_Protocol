@@ -111,11 +111,18 @@ struct subscribe {
 
 struct publish {
   struct fixed_header header;
-  unsigned short packet_id;
-  unsigned short topic_length;
-  unsigned char *topic;
-  unsigned short payload_length;
-  unsigned char *payload;
+
+  struct{
+  uint16_t topic_length;
+  uint8_t *topic;
+  uint8_t packet_id;
+  } variable_header;
+
+  struct {
+  uint16_t payload_len;
+  uint8_t *message;
+  } payload;
+
 };
 
 struct packet {
