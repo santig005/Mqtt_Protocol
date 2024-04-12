@@ -17,15 +17,19 @@ void Clients_add(Clients *list, struct connect *cn) {
   session->client_id = cn->payload.client_id;
   session->will_topic = cn->payload.will_topic;
   session->will_message = cn->payload.will_message;
-  session->connected = true;s
+  session->connected = true;
   new_client->session = session;
   new_client->next = NULL;
-
+printf("we have entered to clients_add\n");
+printf("when the connect starts clist is %p\n",list);
+printf("and its head is %p\n",list->head);
   if (list->head == NULL) {
-    print("Adding client to the head of the list\n")
+printf("the header was null\n");
+    printf("Adding client to the head of the list\n");
     list->head = new_client;
   } else {
-    print("Adding client to the end of the list\n")
+printf("the head was not null\n");
+    printf("Adding client to the end of the list\n");
     Client *current = list->head;
     while (current->next != NULL) {
       current = current->next;

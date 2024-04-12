@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +19,8 @@
 #include "packer.h"
 
 uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
+printf("when the connect starts clist is %p\n",clist);
+printf("and its head is %p\n",clist->head);
   connect_messg->header.remaining_length = remaining_length(&buff);
   connect_messg->variable_header.protocol_name.length = next_16b(&buff);
   connect_messg->variable_header.protocol_name.name =
@@ -52,10 +54,15 @@ uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
     printf("client had to be added\n");
     printf("before adding\n");
     Clients_print(clist);
+	pthread_mutex_lock(&list_mutex);
     Clients_add(clist, connect_messg);
+pthread_mutex_unlock(&list_mutex);
   }
   printf("after adding\n");
   Clients_print(clist);
+printf("after suppos \n");
+printf("when the connect starts clist is %p\n",clist);
+printf("and its head is %p\n",clist->head);
   return 0x00;
 }
 void send_connack(int connfd, uint8_t session_present, uint8_t response) {
@@ -136,6 +143,9 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
   case B_CONNECT:
     connect_messg = (struct connect *)malloc(sizeof(struct connect));
     response = process_connect(connect_messg, buff);
+printf("after the connect was processed\n");
+printf("when the connect starts clist is %p\n",clist);
+printf("and its head is %p\n",clist->head);
     if (response == 0x00) {
       *client_id = connect_messg->payload.client_id;
       Client *c = Clients_find(clist, *client_id);
