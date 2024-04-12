@@ -119,6 +119,9 @@ void network_connection(int sockfd) {
           (struct subscribe *)malloc(sizeof(struct subscribe));
       switch (respuesta) {
 
+      struct publish *customed_publish =
+          (struct publish *)malloc(sizeof(struct publish));  
+
       case 1:
         customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
         customed_subscribe->variable_header.packet_id = 1;
@@ -151,7 +154,33 @@ void network_connection(int sockfd) {
         send_subscribe(sockfd, customed_subscribe);
         break;
       case 2:
-        printf("¡Adiós!\n");
+        customed_publish->header.basic_header.byte = B_PUBLISH;
+        customed_publish->fixed_header.dup = 0;
+        customed_publish->fixed_header.qos = 0;
+        customed_publish->fixed_header.retain = 1;
+        
+        int publish_topic_length;
+        printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
+        scanf_r = scanf("%d", &publish_topic_length);
+        customed_subscribe->variable_header.topic_len = publish_topic_length;
+
+        uint8_t *publish_topic = (uint8_t *)malloc(publish_topic_length + 1);
+        printf("Ingresa el tema, maximo %d caracteres\n", publish_topic_length);
+        scanf_r = scanf("%s", publish_topic);
+        customed_publish->variable_header.topic = publish_topic;
+
+        int publish_message_length;
+        printf("Ingresa la longitud del máxima del mensaje, maximo 65535\n");
+        scanf_r = scanf("%d", &publish_message_length);
+        customed_publish->payload.payload_len = publish_message_length;
+
+        uint8_t *publish_message = (uint8_t *)malloc(publish_message_length + 1);
+        printf("Ingresa el mensaje, maximo %d caracteres\n", publish_message_length);
+        scanf_r = scanf("%s", publish_message);
+        customed_publish->payload.message = publish_message;
+
+        send_publish(sockfd, customed_publish);
+
         break;
       case 3:
         send_disconnect(sockfd);

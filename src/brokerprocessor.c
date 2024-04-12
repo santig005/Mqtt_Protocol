@@ -120,10 +120,20 @@ printf("let's print the tree");
   print_topic(0,root);
 }
 
-uint8_t process_publish(uint8_t *buff) {
-  struct publish *publish_messg =
-      (struct publish *)malloc(sizeof(struct publish));
+uint8_t process_publish(uint8_t *buff, uint8_t *client_id) {
+  Client *c=Clients_find(clist,client_id);
+  struct publish *publish_messg = (struct publish *)malloc(sizeof(struct publish));
   publish_messg->header.remaining_length = remaining_length(&buff);
+  publish_messg->variable_header.topic_len = next_16b(&buff);
+  publish_messg->variable_header.topic = next_nbytes(&buff, publish_messg->variable_header.topic_len);
+
+  if(publish_messg->header.dup_flag){
+    struct topic *topic_in_root = search_topic(root,publish_messg->variable_header.topic);
+
+    publish_messg->payload.payload_len = publish_messg->header.remaining_length - publish_messg->variable_header.topic_len - 2;
+    publish_messg->payload.message = next_nbytes(&buff, publish_messg->payload.payload_len);
+    topic_in_root->retained_message = publish_messg->payload.message;
+  }
 }
 
 uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
