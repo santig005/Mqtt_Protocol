@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "broker.h"
-#define MAX 100
-#define PORT 8080
+#define MAX 500
+#define PORT 1883
 #include "basics.h"
 #include "clientslist.h"
 #include "convertion.h"

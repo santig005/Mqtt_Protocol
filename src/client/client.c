@@ -10,10 +10,10 @@
 #include <strings.h> // bzero()
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
-#define MAX 80
+#define MAX 500
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
-#define PORT 8080
+#define PORT 1883
 #define broker_ip "54.85.112.30"
 #define SA struct sockaddr
 
