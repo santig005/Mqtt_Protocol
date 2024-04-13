@@ -120,9 +120,7 @@ void send_subscribe(int connfd, struct subscribe *subscribe_messg) {
   bytes_rw = write(connfd, subscribe_packet, total_length);
 }
 
-void send_publish(int connfd, struct subscribe *publish_messg){
-  
-  struct publish *publish_messg = (struct publish *)malloc(sizeof(struct publish));
+void send_publish(int connfd, struct publish *publish_messg){
   uint16_t variable_header_length = 2 + strlen((const char *)publish_messg->variable_header.topic);
   uint64_t payload_length = strlen((const char *)publish_messg->payload.message);
 

@@ -23,8 +23,9 @@
 #include <time.h>
 int bytes_rw;
 uint8_t connected = 0;
-void* menu(void *sockfd){
-int sockfd=*((int *)sockfd);
+void* menu(void *argv){
+ uint8_T buff_broker[MAX];
+int sockfd=*((int *)argv);
   uint8_t buff_client[MAX];
 int stay_connected = 1;
     for (;;) {
@@ -35,7 +36,6 @@ int stay_connected = 1;
 
       printf("Selleciona un número:\n 1.SUBSCRIBE\n 2.PUBLISH\n 3.DISCONNECT\n "
              "4.EXIT\n");
-      n = 0;
       int g = scanf("%d", &respuesta);
 
       int f;
@@ -73,14 +73,14 @@ int stay_connected = 1;
         break;
       case 2:
         customed_publish->header.basic_header.byte = B_PUBLISH;
-        customed_publish->fixed_header.dup = 0;
-        customed_publish->fixed_header.qos = 0;
-        customed_publish->fixed_header.retain = 1;
+        customed_publish->header.basic_header.bits.dup = 0;
+        customed_publish->header.basic_header.bits.qos = 0;
+        customed_publish->header.basic_header.bits.retain = 1;
         
         int publish_topic_length;
         printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
         scanf_r = scanf("%d", &publish_topic_length);
-        customed_subscribe->variable_header.topic_len = publish_topic_length;
+        customed_publish->variable_header.topic_length= publish_topic_length;
 
         uint8_t *publish_topic = (uint8_t *)malloc(publish_topic_length + 1);
         printf("Ingresa el tema, maximo %d caracteres\n", publish_topic_length);
@@ -111,9 +111,9 @@ int stay_connected = 1;
     }
 }
 // function reader that is thread
-void *reader(void *sockfd) {
-  int connfd = *((int *)sockfd);
-  char buff_broker[MAX];
+void *reader(void *argv) {
+  int connfd = *((int *)argv);
+  uint8_t buff_broker[MAX];
   int stay_connected = 1;
   for (;;) {
     bzero(buff_broker, sizeof(buff_broker));
@@ -131,7 +131,8 @@ void *reader(void *sockfd) {
   return NULL;
 }
 
-void network_connection(int sockfd) {
+void* network_connection(void * argv) {
+  int sockfd = *((int *)argv);
   uint8_t client_id[24];
   int n;
   int election;
@@ -242,7 +243,8 @@ int main() {
     printf("connected to the server..\n");
 
   // network_connectiontion for chat
-  network_connection(sockfd);
+  pthread_t tid;
+  pthread_create(&tid, NULL, network_connection, (void *)&sockfd);
 
   // close the socket
   close(sockfd);

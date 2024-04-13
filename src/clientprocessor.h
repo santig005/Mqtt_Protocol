@@ -9,6 +9,7 @@ uint8_t process_connack(uint8_t * buff);
 void send_disconnect(int connfd);
 void send_connect( int connfd,struct connect * conn);
 void send_subscribe(int connfd, struct subscribe * sub);
+void send_publish(int connfd, struct publish * pub);
 
 #endif
 

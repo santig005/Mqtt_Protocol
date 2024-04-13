@@ -122,13 +122,13 @@ void send_publish(int connfd, struct publish * publish_messg){
 uint8_t process_publish(uint8_t *buff, uint8_t *client_id,struct publish * publish_messg) {
   Client *c=Clients_find(clist,client_id);
   publish_messg->header.remaining_length = remaining_length(&buff);
-  publish_messg->variable_header.topic_len = next_16b(&buff);
+  publish_messg->variable_header.topic_length = next_16b(&buff);
   publish_messg->variable_header.topic = next_nbytes(&buff, publish_messg->variable_header.topic_len);
   publish_messg->variable_header.packet_id = next_16b(&buff);
-  publish_messg->payload.payload_len = publish_messg->header.remaining_length - publish_messg->variable_header.topic_len - 2;
+  publish_messg->payload.payload_len = publish_messg->header.remaining_length - publish_messg->variable_header.topic_length - 2;
   publish_messg->payload.message = next_nbytes(&buff, publish_messg->payload.payload_len);
+  struct topic *topic_in_root = search_topic(root,publish_messg->variable_header.topic);
   if(publish_messg->header.basic_header.bits.retain){
-    struct topic *topic_in_root = search_topic(root,publish_messg->variable_header.topic);
     topic_in_root->retained = true;
     topic_in_root->retained_message = publish_messg->payload.message;
   }
