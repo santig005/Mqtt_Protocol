@@ -88,4 +88,4 @@ En resumen, la replicación del protocolo MQTT fue un proyecto que permitió exp
 
 ### Video
 
-[Video presentación(drive)](https://eafit-my.sharepoint.com/personal/vjvilladia_eafit_edu_co/_layouts/15/onedrive.aspx?login_hint=vjvilladia%40eafit%2Eedu%2Eco&id=%2Fpersonal%2Fvjvilladia%5Feafit%5Fedu%5Fco%2FDocuments%2FMqtt%5Ffiles&view=0)
+[Video presentación(drive)]([https://eafit-my.sharepoint.com/personal/vjvilladia_eafit_edu_co/_layouts/15/onedrive.aspx?login_hint=vjvilladia%40eafit%2Eedu%2Eco&id=%2Fpersonal%2Fvjvilladia%5Feafit%5Fedu%5Fco%2FDocuments%2FMqtt%5Ffiles&view=0](https://eafit-my.sharepoint.com/:f:/g/personal/vjvilladia_eafit_edu_co/EpuXgBy5suFEuxEHIP9V95YBmIzYlwhGfVqbxrfuGP2qZg?e=iBW0Ym))
