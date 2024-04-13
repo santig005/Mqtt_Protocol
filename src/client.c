@@ -14,7 +14,7 @@
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
 #define PORT 8080
-#define broker_ip "54.208.235.176"
+#define broker_ip "44.202.111.186"
 #define SA struct sockaddr
 
 #include "clientprocessor.h"
@@ -24,6 +24,8 @@
 #include <time.h>
 int bytes_rw;
 uint8_t connected = 0;
+
+
 void* menu(void *argv){
 int scanf_r;
  uint8_t buff_broker[MAX];
@@ -46,7 +48,7 @@ int stay_connected = 1;
 
       struct publish *customed_publish =
           (struct publish *)malloc(sizeof(struct publish));
-      
+
       switch (respuesta) {
 
       case 1:
@@ -79,7 +81,7 @@ int stay_connected = 1;
         customed_publish->header.basic_header.bits.dup = 0;
         customed_publish->header.basic_header.bits.qos = 0;
         customed_publish->header.basic_header.bits.retain = 1;
-        
+
         int publish_topic_length;
         printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
         scanf_r = scanf("%d", &publish_topic_length);
@@ -134,8 +136,7 @@ void *reader(void *argv) {
   return NULL;
 }
 
-void* network_connection(void * argv) {
-  int sockfd = *((int *)argv);
+void network_connection(int sockfd) {
   uint8_t client_id[24];
   int n;
   int election;
@@ -144,7 +145,7 @@ void* network_connection(void * argv) {
          "CONNECT:\n 1.Continuar\n");
   scanf_r = scanf("%d", &election);
 
-  if (1==1) {
+  if (election) {
     struct connect *customed_connect =
         (struct connect *)malloc(sizeof(struct connect));
     customed_connect->header.basic_header.byte = B_CONNECT;
@@ -242,8 +243,7 @@ int main() {
     printf("connected to the server..\n");
 
   // network_connectiontion for chat
-  pthread_t tid;
-  pthread_create(&tid, NULL, network_connection, (void *)&sockfd);
+  network_connection(sockfd);
 
   // close the socket
   close(sockfd);
