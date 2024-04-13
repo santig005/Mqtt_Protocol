@@ -39,7 +39,7 @@ Durante el proceso de desarrollo del proyecto, se siguieron los siguientes hitos
   - Se dedicó esta semana inicial a comprender en profundidad las especificaciones del protocolo MQTT.
   - Se realizó un diseño detallado del modelo, definiendo la estructura de los diferentes tipos de paquetes que conforman el protocolo, como connect, disconnect, subscribe y publish, prestando especial atención a la calidad de servicio (QoS) 0.
 
-
+![Mqtt_diagrams](Mqtt_diagrams_2.png)
 
 **Segunda Semana: Implementación Inicial y Resolución de Problemas de Concurrencia**
   - Comenzamos la implementación del código, priorizando la creación del paquete connect y su estructura.
