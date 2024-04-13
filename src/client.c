@@ -22,11 +22,117 @@
 #include <stdlib.h>
 #include <time.h>
 int bytes_rw;
-void network_connection(int sockfd) {
-  char buff_client[MAX];
+uint8_t connected = 0;
+void* menu(void *sockfd){
+int sockfd=*((int *)sockfd);
+  uint8_t buff_client[MAX];
+int stay_connected = 1;
+    for (;;) {
+      bzero(buff_client, sizeof(buff_client));
+
+      printf("Hola, escribe tu comando: \n");
+      int respuesta;
+
+      printf("Selleciona un número:\n 1.SUBSCRIBE\n 2.PUBLISH\n 3.DISCONNECT\n "
+             "4.EXIT\n");
+      n = 0;
+      int g = scanf("%d", &respuesta);
+
+      int f;
+      struct subscribe *customed_subscribe =
+          (struct subscribe *)malloc(sizeof(struct subscribe));
+      switch (respuesta) {
+
+      struct publish *customed_publish =
+          (struct publish *)malloc(sizeof(struct publish));  
+
+      case 1:
+        customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
+        customed_subscribe->variable_header.packet_id = 1;
+        int num_topics;
+        printf("Ingresa el número de temas a los que quieres suscribirte, "
+               "minimo 1\n");
+        scanf_r = scanf("%d", &num_topics);
+        struct packet_topic *topics_pointer = (struct packet_topic *)malloc(num_topics * sizeof(struct packet_topic));
+        customed_subscribe->payload.tuples_len = num_topics;
+        customed_subscribe->payload.tuples=topics_pointer;
+        while (num_topics > 0) {
+          int topic_length;
+          printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
+          scanf_r = scanf("%d", &topic_length);
+          uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
+          printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
+          scanf_r = scanf("%s", topic);
+          customed_subscribe->payload.tuples[num_topics - 1].topic_len =
+              topic_length;
+          customed_subscribe->payload.tuples[num_topics - 1].topic = topic;
+          customed_subscribe->payload.tuples[num_topics - 1].qos = 0;
+          num_topics-=1;
+        }
+        send_subscribe(sockfd, customed_subscribe);
+        break;
+      case 2:
+        customed_publish->header.basic_header.byte = B_PUBLISH;
+        customed_publish->fixed_header.dup = 0;
+        customed_publish->fixed_header.qos = 0;
+        customed_publish->fixed_header.retain = 1;
+        
+        int publish_topic_length;
+        printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
+        scanf_r = scanf("%d", &publish_topic_length);
+        customed_subscribe->variable_header.topic_len = publish_topic_length;
+
+        uint8_t *publish_topic = (uint8_t *)malloc(publish_topic_length + 1);
+        printf("Ingresa el tema, maximo %d caracteres\n", publish_topic_length);
+        scanf_r = scanf("%s", publish_topic);
+        customed_publish->variable_header.topic = publish_topic;
+
+        int publish_message_length;
+        printf("Ingresa la longitud del máxima del mensaje, maximo 65535\n");
+        scanf_r = scanf("%d", &publish_message_length);
+        customed_publish->payload.payload_len = publish_message_length;
+
+        uint8_t *publish_message = (uint8_t *)malloc(publish_message_length + 1);
+        printf("Ingresa el mensaje, maximo %d caracteres\n", publish_message_length);
+        scanf_r = scanf("%s", publish_message);
+        customed_publish->payload.message = publish_message;
+
+        send_publish(sockfd, customed_publish);
+
+        break;
+      case 3:
+        send_disconnect(sockfd);
+        stay_connected = 0;
+        break;
+      }
+      if (!stay_connected)
+        break;
+      bzero(buff_broker, sizeof(buff_broker));
+    }
+}
+// function reader that is thread
+void *reader(void *sockfd) {
+  int connfd = *((int *)sockfd);
   char buff_broker[MAX];
+  int stay_connected = 1;
+  for (;;) {
+    bzero(buff_broker, sizeof(buff_broker));
+    bytes_rw = read(connfd, buff_broker, sizeof(buff_broker));
+    if (bytes_rw == 0) {
+      printf("Server disconnected\n");
+      break;
+    }
+    uint8_t response = process_packet(connfd, &buff_broker[0]);
+    if (response == 0x01) {
+      printf("Error en la respuesta del servidor\n");
+      break;
+    }
+  }
+  return NULL;
+}
+
+void network_connection(int sockfd) {
   uint8_t client_id[24];
-  uint8_t connected = 0;
   int n;
   int election;
   int scanf_r;
@@ -91,9 +197,9 @@ void network_connection(int sockfd) {
 
       send_connect(sockfd, customed_connect);
       // hacemos lectura y luego procesamos connack
-      bytes_rw = read(sockfd, buff_broker, sizeof(buff_broker));
-      connected = process_packet(sockfd, &buff_broker[0]);
-      uint8_t connack_response = process_packet(sockfd, &buff_broker[0]);
+      //bytes_rw = read(sockfd, buff_broker, sizeof(buff_broker));
+      //connected = process_packet(sockfd, &buff_broker[0]);
+      //uint8_t connack_response = process_packet(sockfd, &buff_broker[0]);
     } else {
       uint8_t default_connect[21] = {0x10, 0x13, 0x00, 0x04, 0x4d, 0x51, 0x54,
                                      0x54, 0x04, 0xca, 0x00, 0x0a, 0x00, 0x01,
@@ -102,93 +208,11 @@ void network_connection(int sockfd) {
     }
   }
   if (connected) {
-    int stay_connected = 1;
-    for (;;) {
-      bzero(buff_client, sizeof(buff_client));
-
-      printf("Hola, escribe tu comando: \n");
-      int respuesta;
-
-      printf("Selleciona un número:\n 1.SUBSCRIBE\n 2.PUBLISH\n 3.DISCONNECT\n "
-             "4.EXIT\n");
-      n = 0;
-      int g = scanf("%d", &respuesta);
-
-      int f;
-      struct subscribe *customed_subscribe =
-          (struct subscribe *)malloc(sizeof(struct subscribe));
-      switch (respuesta) {
-
-      struct publish *customed_publish =
-          (struct publish *)malloc(sizeof(struct publish));  
-
-      case 1:
-        customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
-        customed_subscribe->variable_header.packet_id = 1;
-        int num_topics;
-        printf("Ingresa el número de temas a los que quieres suscribirte, "
-               "minimo 1\n");
-        scanf_r = scanf("%d", &num_topics);
-        struct packet_topic *topics_pointer = (struct packet_topic *)malloc(num_topics * sizeof(struct packet_topic));
-        customed_subscribe->payload.tuples_len = num_topics;
-        customed_subscribe->payload.tuples=topics_pointer;
-
-        while (num_topics > 0) {
-          int topic_length;
-          printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
-          scanf_r = scanf("%d", &topic_length);
-          uint8_t *topic = (uint8_t *)malloc(topic_length + 1);
-          printf("Ingresa el tema, maximo %d caracteres\n", topic_length);
-          scanf_r = scanf("%s", topic);
-          customed_subscribe->payload.tuples[num_topics - 1].topic_len =
-              topic_length;
-          customed_subscribe->payload.tuples[num_topics - 1].topic = topic;
-          customed_subscribe->payload.tuples[num_topics - 1].qos = 0;
-          num_topics-=1;
-        }
-        send_subscribe(sockfd, customed_subscribe);
-        break;
-      case 2:
-        customed_publish->header.basic_header.byte = B_PUBLISH;
-        customed_publish->fixed_header.dup = 0;
-        customed_publish->fixed_header.qos = 0;
-        customed_publish->fixed_header.retain = 1;
-        
-        int publish_topic_length;
-        printf("Ingresa la longitud del máxima del tema, maximo 65535\n");
-        scanf_r = scanf("%d", &publish_topic_length);
-        customed_subscribe->variable_header.topic_len = publish_topic_length;
-
-        uint8_t *publish_topic = (uint8_t *)malloc(publish_topic_length + 1);
-        printf("Ingresa el tema, maximo %d caracteres\n", publish_topic_length);
-        scanf_r = scanf("%s", publish_topic);
-        customed_publish->variable_header.topic = publish_topic;
-
-        int publish_message_length;
-        printf("Ingresa la longitud del máxima del mensaje, maximo 65535\n");
-        scanf_r = scanf("%d", &publish_message_length);
-        customed_publish->payload.payload_len = publish_message_length;
-
-        uint8_t *publish_message = (uint8_t *)malloc(publish_message_length + 1);
-        printf("Ingresa el mensaje, maximo %d caracteres\n", publish_message_length);
-        scanf_r = scanf("%s", publish_message);
-        customed_publish->payload.message = publish_message;
-
-        send_publish(sockfd, customed_publish);
-
-        break;
-      case 3:
-        send_disconnect(sockfd);
-        stay_connected = 0;
-        break;
-      }
-      if (!stay_connected)
-        break;
-
-      char *path = "log.log";
-
-      bzero(buff_broker, sizeof(buff_broker));
-    }
+    // now we use 2 threads one for menu and onw for reader
+    pthread_t menu_thread;
+    pthread_create(&menu_thread, NULL, menu, (void *)&sockfd);
+    pthread_t reader_thread;
+    pthread_create(&reader_thread, NULL, reader, (void *)&sockfd);
   }
 }
 

@@ -98,22 +98,46 @@ uint8_t process_subscribe(uint8_t *buff, uint8_t *client_id) {
   print_topic(0,root);
 }
 
-uint8_t process_publish(uint8_t *buff, uint8_t *client_id) {
+void send_publish(int connfd, struct publish * publish_messg){
+//hacemos una copia en memoria de el packete publish
+  struct publish * copia=(struct publish *)malloc(sizeof(struct publish));
+  memcpy((void*)copia,(void*)publish_messg,sizeof(struct publish));
+  uint16_t variable_header_length = 2 + copia->variable_header.topic_length + 2;
+  uint16_t payload_length = copia->payload.payload_len;
+  uint32_t remaining_length = variable_header_length + payload_length;
+  uint8_t fixed_header_length = 1 + nbytes_remaining_length(remaining_length);
+  uint64_t total_length= fixed_header_length + remaining_length;
+  uint8_t publish_packet[total_length];
+  uint8_t *ptr = &publish_packet[0];
+  copia->header.basic_header.byte = 0x30;
+  pack_byte(&ptr, copia->header.basic_header.byte);
+  pack_remaining_length(&ptr, remaining_length);
+  pack_16b(&ptr, copia->variable_header.topic_len);
+  pack_nbytes(&ptr, copia->variable_header.topic, copia->variable_header.topic_len);
+  pack_16b(&ptr, copia->variable_header.packet_id);
+  pack_nbytes(&ptr, copia->payload.message, copia->payload.payload_len);
+  bytes_rw = write(connfd, publish_packet, total_length);
+}
+
+uint8_t process_publish(uint8_t *buff, uint8_t *client_id,struct publish * publish_messg) {
   Client *c=Clients_find(clist,client_id);
-  struct publish *publish_messg = (struct publish *)malloc(sizeof(struct publish));
   publish_messg->header.remaining_length = remaining_length(&buff);
   publish_messg->variable_header.topic_len = next_16b(&buff);
   publish_messg->variable_header.topic = next_nbytes(&buff, publish_messg->variable_header.topic_len);
-
-  if(publish_messg->header.dup_flag){
+  publish_messg->variable_header.packet_id = next_16b(&buff);
+  publish_messg->payload.payload_len = publish_messg->header.remaining_length - publish_messg->variable_header.topic_len - 2;
+  publish_messg->payload.message = next_nbytes(&buff, publish_messg->payload.payload_len);
+  if(publish_messg->header.basic_header.bits.retain){
     struct topic *topic_in_root = search_topic(root,publish_messg->variable_header.topic);
-
-    publish_messg->payload.payload_len = publish_messg->header.remaining_length - publish_messg->variable_header.topic_len - 2;
-    publish_messg->payload.message = next_nbytes(&buff, publish_messg->payload.payload_len);
+    topic_in_root->retained = true;
     topic_in_root->retained_message = publish_messg->payload.message;
   }
+  struct subscription *current_sub = topic_in_root->subscriptions;
+  while(current_sub!=NULL){
+    send_publish(current_sub->subscriber->session->connfd,publish_messg);
+    current_sub=current_sub->next;
+  }
 }
-
 uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
   uint8_t first_byte = next_byte(&buff);
   uint8_t response;
@@ -144,6 +168,13 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
   case B_SUBSCRIBE:
     response = process_subscribe(buff, *client_id);
     return 0x01;
+    case default:
+    //sacamos los primeros 4 bits y vemos si es publish, tomamos dup, qos y retain los mandamos a la funcion 
+    //process_publish
+    uint8_t byte = first_byte;;
+    struct publish *publish_messg = (struct publish *)malloc(sizeof(struct publish));
+    publish_messg->header.basic_header.byte = byte;
+    response = process_publish(buff, *client_id,publish_messg);
   }
   return 0x01;
 }
