@@ -33,8 +33,59 @@ Para llevar a cabo este proyecto, se utilizarán las siguientes tecnologías:
 - Lenguaje de programación: C
 - Amazon Web Services
 
+Durante el proceso de desarrollo del proyecto, se siguieron los siguientes hitos y actividades detalladas:
+
+**Primera Semana: Lectura de Especificaciones y Diseño del Modelo**
+  - Se dedicó esta semana inicial a comprender en profundidad las especificaciones del protocolo MQTT.
+  - Se realizó un diseño detallado del modelo, definiendo la estructura de los diferentes tipos de paquetes que conforman el protocolo, como connect, disconnect, subscribe y publish, prestando especial atención a la calidad de servicio (QoS) 0.
+
+![Mqtt_diagrams drawio](https://github.com/santig005/Mqtt_Protocol/assets/130608466/d08680c7-0ce6-4077-91be-f68b3f717782)
+
+**Segunda Semana: Implementación Inicial y Resolución de Problemas de Concurrencia**
+  - Comenzamos la implementación del código, priorizando la creación del paquete connect y su estructura.
+  - Se abordaron problemas relacionados con la concurrencia para garantizar la estabilidad y eficiencia del sistema.
+  - Se trabajó en la gestión de clientes a través de listas enlazadas, estableciendo una base sólida para la comunicación cliente-servidor.
+
+**Tercera Semana: Refinamiento de la Estructura del Connect y Desarrollo de Suscripciones**
+  - Se dedicó tiempo a detallar y refinar la estructura del paquete connect, asegurando su coherencia y funcionalidad.
+  - Se implementó una estructura para gestionar las suscripciones de los clientes, permitiendo un manejo eficiente de los temas y mensajes.
+
+**Cuarta Semana: Finalización del Paquete Disconnect y Optimización**
+  - Se centró en completar la implementación del paquete disconnect, asegurando que los clientes pudieran desconectarse del servidor de manera adecuada y segura.
+  - Se realizaron optimizaciones adicionales en el código para mejorar el rendimiento y la eficiencia del sistema en general.
+
+**Quinta Semana: Culminación Exitosa de las Funcionalidades Principales**
+  - Se finalizó la implementación del proceso de publicación, permitiendo a los clientes enviar mensajes de forma fiable y eficiente.
+
+
 ## Aspectos logrados y no logrados
+
+### Logros
+- Como grupo se pudo culminar el CONNECT y su respectivo DISCONNECT.
+- Con el respecto al SUBSCRIBE, el broker procesa solicitudes con calidad de servicio iguales a cero(0).
+- El PUBLISH que es un proceso en via duplex, el cliente es capaz de publicar topicos especificos, y el broker capaz de enviarlos a los respectivos clientes suscritos en dicho topico.
+
+### No logramos
+- El manejo de una calidad de servicio mayor a cero(0) en los paquetes que disponen de esta caracteristica.
+- Uso de las wildcards para el proceso de subscripción.
+- Liberación de recursos.
+- Estructura para la gestión de datos no son las más optimas.
+- No hay Clean Session
+- No se tomaron en cuenta muchos condicionales para mantener la conexión de un cliente o para la gestión de los tipos de paquetes.
 
 ## Conclusiones
 
+El proyecto proporcionó una valiosa experiencia técnica y un profundo entendimiento del funcionamiento interno del protocolo MQTT. Se destacaron habilidades en el diseño e implementación de sistemas de red de baja latencia y en la resolución de desafíos relacionados con la escalabilidad, rendimiento y confiabilidad.
+
+En resumen, la replicación del protocolo MQTT fue un proyecto que permitió explorar y comprender en detalle uno de los protocolos de mensajería más utilizados en el ámbito del IoT y las comunicaciones en red.
+
 ## Referencias
+
+[MQTT ESSENTIALS(YOUTUBE)](https://www.youtube.com/watch?v=jTeJxQFD8Ak&list=PLRkdoPznE1EMXLW6XoYLGd4uUaB6wB0wd)
+
+[Sockets concurentes](https://www.geeksforgeeks.org/socket-programming-cc/)
+
+
+### Video
+
+[Video presentación(drive)](https://eafit-my.sharepoint.com/:f:/g/personal/vjvilladia_eafit_edu_co/EpuXgBy5suFEuxEHIP9V95YBmIzYlwhGfVqbxrfuGP2qZg?e=kvacRB)
