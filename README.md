@@ -55,15 +55,15 @@ Durante el proceso de desarrollo del proyecto, se siguieron los siguientes hitos
   - Se realizaron optimizaciones adicionales en el código para mejorar el rendimiento y la eficiencia del sistema en general.
 
 **Quinta Semana: Culminación Exitosa de las Funcionalidades Principales**
-  - Se finalizó la implementación del proceso de publicación, permitiendo a los clientes enviar mensajes de forma fiable y eficiente.
+  - Se finalizó la implementación del proceso de subscripción, permitiendo a los clientes enviar suscribirse en tópicos especificos.
 
 
 ## Aspectos logrados y no logrados
 
 ### Logros
 - Como grupo se pudo culminar el CONNECT y su respectivo DISCONNECT.
-- Con el respecto al SUBSCRIBE, el broker procesa solicitudes con calidad de servicio iguales a cero(0).
-- El PUBLISH que es un proceso en via duplex, el cliente es capaz de publicar topicos especificos, y el broker capaz de enviarlos a los respectivos clientes suscritos en dicho topico.
+- Respecto al SUBSCRIBE, el broker procesa solicitudes con calidad de servicio iguales a cero(0).
+- El PUBLISH que es un proceso en via full duplex, el cliente es capaz de publicar tópicos especificos, y el broker capaz de enviarlos a los respectivos clientes suscritos en dicho topico.
 
 ### No logramos
 - El manejo de una calidad de servicio mayor a cero(0) en los paquetes que disponen de esta caracteristica.
