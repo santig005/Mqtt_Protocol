@@ -9,11 +9,12 @@
 #include <strings.h> // bzero()
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
+#include <pthread.h>
 #define MAX 80
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
 #define PORT 8080
-#define broker_ip "54.165.156.239"
+#define broker_ip "54.208.235.176"
 #define SA struct sockaddr
 
 #include "clientprocessor.h"
@@ -24,7 +25,8 @@
 int bytes_rw;
 uint8_t connected = 0;
 void* menu(void *argv){
- uint8_T buff_broker[MAX];
+int scanf_r;
+ uint8_t buff_broker[MAX];
 int sockfd=*((int *)argv);
   uint8_t buff_client[MAX];
 int stay_connected = 1;
@@ -41,10 +43,11 @@ int stay_connected = 1;
       int f;
       struct subscribe *customed_subscribe =
           (struct subscribe *)malloc(sizeof(struct subscribe));
-      switch (respuesta) {
 
       struct publish *customed_publish =
-          (struct publish *)malloc(sizeof(struct publish));  
+          (struct publish *)malloc(sizeof(struct publish));
+      
+      switch (respuesta) {
 
       case 1:
         customed_subscribe->header.basic_header.byte = B_SUBSCRIBE;
@@ -138,14 +141,10 @@ void* network_connection(void * argv) {
   int election;
   int scanf_r;
   printf("Hola, para acceder a los servicios del servidor, debes realizar un "
-         "CONNECT:\n 1.Continuar\n 2.Salir\n");
+         "CONNECT:\n 1.Continuar\n");
   scanf_r = scanf("%d", &election);
 
-  if (election != 1) {
-    printf("Te esperamos pronto nuevamente\n");
-    return;
-
-  } else {
+  if (1==1) {
     struct connect *customed_connect =
         (struct connect *)malloc(sizeof(struct connect));
     customed_connect->header.basic_header.byte = B_CONNECT;

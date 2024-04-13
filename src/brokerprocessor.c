@@ -18,7 +18,7 @@
 #include "clientslist.h"
 #include "packer.h"
 Clients * clist;
-pthread_mutex_t clist_mutex=PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t clist_mutex=PTHREAD_MUTEX_INITIALIZER;
 uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
   connect_messg->header.remaining_length = remaining_length(&buff);
   connect_messg->variable_header.protocol_name.length = next_16b(&buff);
@@ -51,9 +51,9 @@ uint8_t process_connect(struct connect *connect_messg, uint8_t *buff) {
   Client *exist = Clients_find(clist, connect_messg->payload.client_id);
   if (exist == NULL) {
     Clients_print(clist);
-	pthread_mutex_lock(&clist_mutex);
+	///pthread_mutex_lock(&clist_mutex);
     Clients_add(clist, connect_messg);
-pthread_mutex_unlock(&clist_mutex);
+//pthread_mutex_unlock(&clist_mutex);
   }
   Clients_print(clist);
   return 0x00;
@@ -112,8 +112,8 @@ void send_publish(int connfd, struct publish * publish_messg){
   copia->header.basic_header.byte = 0x30;
   pack_byte(&ptr, copia->header.basic_header.byte);
   pack_remaining_length(&ptr, remaining_length);
-  pack_16b(&ptr, copia->variable_header.topic_len);
-  pack_nbytes(&ptr, copia->variable_header.topic, copia->variable_header.topic_len);
+  pack_16b(&ptr, copia->variable_header.topic_length);
+  pack_nbytes(&ptr, copia->variable_header.topic, copia->variable_header.topic_length);
   pack_16b(&ptr, copia->variable_header.packet_id);
   pack_nbytes(&ptr, copia->payload.message, copia->payload.payload_len);
   bytes_rw = write(connfd, publish_packet, total_length);
@@ -123,7 +123,7 @@ uint8_t process_publish(uint8_t *buff, uint8_t *client_id,struct publish * publi
   Client *c=Clients_find(clist,client_id);
   publish_messg->header.remaining_length = remaining_length(&buff);
   publish_messg->variable_header.topic_length = next_16b(&buff);
-  publish_messg->variable_header.topic = next_nbytes(&buff, publish_messg->variable_header.topic_len);
+  publish_messg->variable_header.topic = next_nbytes(&buff, publish_messg->variable_header.topic_length);
   publish_messg->variable_header.packet_id = next_16b(&buff);
   publish_messg->payload.payload_len = publish_messg->header.remaining_length - publish_messg->variable_header.topic_length - 2;
   publish_messg->payload.message = next_nbytes(&buff, publish_messg->payload.payload_len);
@@ -168,7 +168,7 @@ uint8_t process_packet(int connfd, uint8_t *buff, uint8_t **client_id) {
   case B_SUBSCRIBE:
     response = process_subscribe(buff, *client_id);
     return 0x01;
-    case default:
+    default:
     //sacamos los primeros 4 bits y vemos si es publish, tomamos dup, qos y retain los mandamos a la funcion 
     //process_publish
     uint8_t byte = first_byte;;
