@@ -29,7 +29,6 @@ uint8_t process_packet(int connfd, uint8_t *buff) {
   switch (first_byte) {
   case B_CONNACK:
     connack_response = process_connack(buff);
-    printf("connack_response: %x\n", connack_response);
     switch (connack_response) {
     case CONNACK_ACCEPTED:
       printf("Connection accepted\n");
