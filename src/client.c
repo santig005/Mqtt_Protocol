@@ -137,6 +137,7 @@ void *reader(void *argv) {
 }
 
 void network_connection(int sockfd) {
+  uint8_t buff_broker[MAX];
   uint8_t client_id[24];
   int n;
   int election;
@@ -198,8 +199,8 @@ void network_connection(int sockfd) {
 
       send_connect(sockfd, customed_connect);
       // hacemos lectura y luego procesamos connack
-      //bytes_rw = read(sockfd, buff_broker, sizeof(buff_broker));
-      //connected = process_packet(sockfd, &buff_broker[0]);
+      bytes_rw = read(sockfd, buff_broker, sizeof(buff_broker));
+      connected = process_packet(sockfd, &buff_broker[0]);
       //uint8_t connack_response = process_packet(sockfd, &buff_broker[0]);
     } else {
       uint8_t default_connect[21] = {0x10, 0x13, 0x00, 0x04, 0x4d, 0x51, 0x54,
