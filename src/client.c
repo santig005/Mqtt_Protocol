@@ -14,7 +14,7 @@
 #define MAX_CLIENT_ID 23
 #define MAX_CREDENTIALS 65535
 #define PORT 8080
-#define broker_ip "44.202.111.186"
+#define broker_ip "54.85.112.30"
 #define SA struct sockaddr
 
 #include "clientprocessor.h"

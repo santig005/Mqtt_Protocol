@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "clientslist.h"
 extern Clients * clist;
 void send_connack(int connfd,uint8_t session_present,uint8_t response);
 uint8_t process_connect(struct connect * sc,uint8_t *buff);
